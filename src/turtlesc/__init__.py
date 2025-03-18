@@ -1,13 +1,13 @@
 import turtle, time, re
 
-ALL_SHORTCUTS = 'f b l r h c g x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se' + \
-    'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick'
+ALL_SHORTCUTS = 'f b l r h c g x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t' + \
+    'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update tracer'
 
 _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left': 'l', 'home': 'h', 'clear': 'c', 
         'goto': 'g', 'setx': 'x', 'sety': 'y', 'stamp': 'st', 'update': 'u', 'pendown': 'pd', 'penup': 'pu', 'pensize': 'ps', 
         'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir', 
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
-        'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se'}
+        'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't'}
 
 class TurtleShortcutException(Exception):
     pass
@@ -61,6 +61,9 @@ def sc(*args, turtle_obj=None): # type: () -> int
     done - done()
     bye - bye()
     exitonclick - exitonclick()
+
+    t N1 N2 - tracer(N1, N2)
+    u - update()
 
     Note: 
 
@@ -182,7 +185,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 assert False, 'Unhandled shortcut: ' + _sc
             count_of_shortcuts_run += 1
 
-    elif _sc in ('g',):
+    elif _sc in ('g', 't'):
         # These shortcuts take exactly two numeric arguments.
         if len(shortcut_parts) < 3:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing two required numeric argument.')
@@ -210,11 +213,13 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
             # Run the shortcut:
             if _sc == 'g':
                 turtle_obj.goto(x, y)
+            elif _sc == 't':
+                turtle.tracer(x, y)  # Note: tracer() is not a Turtle method, there's only the global tracer() function.
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc 
             count_of_shortcuts_run += 1
 
-    elif _sc in ('h', 'c', 'st', 'pd', 'pu', 'undo', 'bf', 'ef', 'reset', 'bye', 'done', 'exitonclick'):
+    elif _sc in ('h', 'c', 'st', 'pd', 'pu', 'undo', 'bf', 'ef', 'reset', 'bye', 'done', 'exitonclick', 'u'):
         # These shortcuts take exactly zero numeric arguments.
         if len(shortcut_parts) > 1:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: This shortcut does not have arguments.')
@@ -245,6 +250,8 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 turtle_obj.done()
             elif _sc == 'exitonclick':  # pragma: no cover
                 turtle_obj.exitonclick()
+            elif _sc == 'u':
+                turtle_obj.update()
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc
             count_of_shortcuts_run += 1
@@ -362,4 +369,3 @@ def in_degrees_mode():
     """Returns True if turtle is in degrees mode, False if in radians mode."""
     return not in_radians_mode()
 
-sc('pc FF0000')

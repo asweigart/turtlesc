@@ -1,6 +1,7 @@
 import pytest
 from turtle import *
 from turtlesc import *
+from random import *
 
 tracer(10000, 0)
 
@@ -747,6 +748,79 @@ def test_sleep():
 
     assert sc('sleep 1') == 1
     assert sc('sleep 0.1') == 1
+
+def test_tracer_update():
+    orig_tracer = tracer()
+    orig_delay = delay()
+
+    for name in ('t', 'T', 'tracer', 'TRACER', 'tRaCeR'):
+        with pytest.raises(TurtleShortcutException):
+            sc('{name}') # Missing argument
+        with pytest.raises(TurtleShortcutException):
+            sc('{name} 1 2 3') # Too many arguments
+        with pytest.raises(TurtleShortcutException):
+            sc('{name} invalid 0')
+        with pytest.raises(TurtleShortcutException):
+            sc('{name} 0 invalid')
+
+        assert sc(f'{name} 123 1') == 1
+        assert tracer() == 123
+        assert delay() == 1
+
+    for name in ('u', 'U', 'update', 'UPDATE', 'uPdAtE'):
+        with pytest.raises(TurtleShortcutException):
+            sc('{name} 1') # Too many arguments
+        
+        assert sc(f'{name}') == 1
+
+    tracer(orig_tracer, orig_delay)
+
+
+def test_colorful_squares():
+    sc('t 1000 0, ps 4')
+
+    for i in range(100):  # Draw 100 squares.
+        # Move to a random place:
+        sc(f'pu,g {randint(-400, 200)} {randint(-400, 200)},pd,fc {random()} {random()} {random()}, pc {random()} {random()} {random()}')
+        line_length = randint(20, 200)
+
+        # Draw the filled-in square:
+        sc('bf')
+        for j in range(4):
+            sc(f'f {line_length}, l 90')
+        sc('ef')
+
+    sc('u')
+    sc('reset')
+
+
+def test_draw_circles():
+    # Draw circle in the top half of the window:
+    sc('sh 0')  # Face right.
+    for i in range(20):
+        sc(f'cir {i * 10}')
+
+    # Draw circles in the bottom half of the window:
+    sc('sh 180')  # Face left.
+    for i in range(20):
+        sc(f'cir {i * 10}')
+    sc('u')
+    sc('reset')
+
+
+def test_curve_path_filled():
+    for i in range(50):
+        sc(f'fc {random()} {random()} {random()}')
+
+        # Set a random heading and draw several short lines with changing direction:
+        sc(f'sh {randint(0, 360)}, bf')
+
+        for j in range(randint(200, 600)):
+            sc(f'f 1,l {randint(-4, 4)}')
+        sc(f'h, ef')
+    sc('u')
+    sc('reset')
+
 
 
 if __name__ == '__main__':
