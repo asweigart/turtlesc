@@ -1,13 +1,16 @@
 import turtle, time, re
 
-ALL_SHORTCUTS = 'f b l r h c g x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t' + \
-    'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update tracer'
+ALL_SHORTCUTS = 'f b l r h c g x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd' + \
+    'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
+    'circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update' + \
+    'tracer hide show dot clearstamp clearstamps degrees radians speed'
 
 _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left': 'l', 'home': 'h', 'clear': 'c', 
         'goto': 'g', 'setx': 'x', 'sety': 'y', 'stamp': 'st', 'update': 'u', 'pendown': 'pd', 'penup': 'pu', 'pensize': 'ps', 
         'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir', 
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
-        'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't'}
+        'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't',
+        'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd'}
 
 class TurtleShortcutException(Exception):
     pass
@@ -65,6 +68,28 @@ def sc(*args, turtle_obj=None): # type: () -> int
     t N1 N2 - tracer(N1, N2)
     u - update()
 
+    hide - hide()
+    show - show()
+
+    dot N - dot(N)
+    cs N - clearstamp(N)
+    css N - clearstamps(N)
+    degrees - degrees()
+    radians - radians()
+    
+    spd N - speed(N) but N can also be 'fastest', 'fast', 'normal', 'slow', 'slowest'
+    shape N - shape(N) where N can be “arrow”, “turtle”, “circle”, “square”, “triangle”, “classic”
+    resizemode N - resizemode(N) where N can be “auto”, “user”, or "noresize"
+    bgpic N - bgpic(N) where the N filename cannot have a comma in it.
+
+    shapesize N1 N2 N3 - shapesize(N1, N2, N3)
+    settiltangle N - settiltangle(N)
+    tilt N - tilt(N)
+    tiltangle N - tiltangle(N)
+    
+
+
+
     Note: 
 
 
@@ -121,19 +146,29 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
     raise_exception = False
     count_of_shortcuts_run = 0
     
-    if _sc in ('f', 'b', 'r', 'l', 'x', 'y', 'ps', 'sh', 'cir', 'sleep', 'n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'):
-        # These shortcuts take a single numeric argument.
+
+
+    # SHORTCUTS THAT TAKE A SINGLE NUMERIC ARGUMENT:
+    if _sc in ('f', 'b', 'r', 'l', 'x', 'y', 'ps', 'sh', 'cir', 'sleep', 'n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se', 'dot', 'cs', 'spd'):
         if len(shortcut_parts) < 2:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing the required numeric argument.')
         if len(shortcut_parts) > 2:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Too many arguments.')
 
+        # Convert the string arguments for the `speed` shortcut to their numeric equivalents.
+        if _sc == 'spd':
+            shortcut_parts[1] = {'fastest': 0, 'fast': 10, 'normal': 6, 'slow': 3, 'slowest': 1}.get(shortcut_parts[1].lower(), shortcut_parts[1].lower())
+        
         try:
             float(shortcut_parts[1])
         except ValueError:
             raise_exception = True  # We don't raise here so we can hide the original ValueError and make the stack trace a bit neater.
         if raise_exception:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `' + shortcut_parts[1] + '` is not a number.')
+
+        # `dot` shortcut doesn't allow negative values:
+        if _sc == 'dot' and float(shortcut_parts[1]) < 0:
+            raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `dot` argument cannot be a negative number.')
 
         if not dry_run:
             # Run the shortcut that has exactly one numeric argument:
@@ -181,12 +216,55 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 turtle_obj.forward(float(shortcut_parts[1]))
                 if originally_in_radians_mode:
                     turtle.radians()
+            elif _sc == 'dot':
+                turtle_obj.dot(float(shortcut_parts[1]))
+            elif _sc == 'cs':
+                turtle_obj.clearstamp(float(shortcut_parts[1]))
+            elif _sc == 'spd':
+                turtle_obj.speed(float(shortcut_parts[1]))
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc
             count_of_shortcuts_run += 1
 
+
+
+
+
+    # SHORTCUTS THAT TAKE A SINGLE INTEGER ARGUMENT OR NONE ARGUMENT:
+    elif _sc in ('css',):
+        if len(shortcut_parts) > 2:
+            raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Too many arguments.')
+        
+        # Technically, the css shortcut can take a float argument, but it gets passed to int() silently. Not ideal, but not a big deal either.
+
+        if len(shortcut_parts) == 2:
+            try:
+                int(shortcut_parts[1])
+            except ValueError:
+                raise_exception = True  # We don't raise here so we can hide the original ValueError and make the stack trace a bit neater.
+            if raise_exception:
+                raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `' + shortcut_parts[1] + '` is not a number.')
+
+        if not dry_run:
+            # Run the shortcut:
+            if _sc == 'css':
+                if len(shortcut_parts) == 1:
+                    turtle_obj.clearstamps()
+                elif len(shortcut_parts) == 2:
+                    turtle_obj.clearstamps(int(shortcut_parts[1]))
+                else:  # pragma: no cover
+                    assert False, 'Unhandled shortcut: ' + _sc
+            else:  # pragma: no cover
+                assert False, 'Unhandled shortcut: ' + _sc
+            count_of_shortcuts_run += 1
+
+
+
+
+
+
+    # SHORTCUTS THAT TAKE EXACTLY TWO NUMERIC ARGUMENTS:
     elif _sc in ('g', 't'):
-        # These shortcuts take exactly two numeric arguments.
         if len(shortcut_parts) < 3:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing two required numeric argument.')
         elif len(shortcut_parts) > 3:
@@ -219,8 +297,12 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 assert False, 'Unhandled shortcut: ' + _sc 
             count_of_shortcuts_run += 1
 
-    elif _sc in ('h', 'c', 'st', 'pd', 'pu', 'undo', 'bf', 'ef', 'reset', 'bye', 'done', 'exitonclick', 'u'):
-        # These shortcuts take exactly zero numeric arguments.
+
+
+
+
+    # SHORTCUTS THAT TAKE EXACTLY ZERO ARGUMENTS:
+    elif _sc in ('h', 'c', 'st', 'pd', 'pu', 'undo', 'bf', 'ef', 'reset', 'bye', 'done', 'exitonclick', 'u', 'show', 'hide'):
         if len(shortcut_parts) > 1:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: This shortcut does not have arguments.')
 
@@ -252,12 +334,18 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 turtle_obj.exitonclick()
             elif _sc == 'u':
                 turtle_obj.update()
+            elif _sc == 'show':
+                turtle_obj.showturtle()
+            elif _sc == 'hide':
+                turtle_obj.hideturtle()
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc
             count_of_shortcuts_run += 1
 
+
+
+    # SHORTCUTS THAT TAKE AN RGB OR COLOR ARGUMENT:
     elif _sc in ('pc', 'fc', 'bc'):
-        # These shortcuts take one RGB argument:
         if len(shortcut_parts) < 2:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing required RGB argument.')
         elif len(shortcut_parts) not in (2, 4):
@@ -368,4 +456,5 @@ def in_radians_mode():
 def in_degrees_mode():
     """Returns True if turtle is in degrees mode, False if in radians mode."""
     return not in_radians_mode()
+
 

@@ -347,6 +347,10 @@ def test_pencolor():
         assert sc(f'{name} FF0000') == 1
         assert pencolor() == (255, 0, 0.0)
 
+        colormode(1)
+        assert sc(f'{name} FF0000') == 1
+        assert pencolor() == (1, 0, 0.0)
+
         with pytest.raises(TurtleShortcutException):
             sc(f'{name} xxyyzz')  # Invalid color name
 
@@ -776,6 +780,89 @@ def test_tracer_update():
     tracer(orig_tracer, orig_delay)
 
 
+def test_show_hide():
+    for name in ('show', 'SHOW', 'sHoW'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1')  # Too many arguments
+        
+        assert sc(f'{name}') == 1
+        assert isvisible()
+
+    for name in ('hide', 'HIDE', 'hIdE'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1')  # Too many arguments
+        
+        assert sc(f'{name}') == 1
+        assert not isvisible()
+
+
+def test_dot():
+    for name in ('dot', 'DOT', 'dOt'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name}')  # Missing argument
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1 2')  # Too many arguments
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} invalid')  # Invalid argument
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} -1')  # Invalid argument
+        
+
+        assert sc(f'{name} 1') == 1
+        assert sc(f'{name} 10') == 1
+        assert sc(f'{name} 10.5') == 1
+        assert sc(f'{name} 0') == 1
+
+
+def test_clearstamp():
+    for name in ('cs', 'clearstamp', 'CS', 'CLEARSTAMP', 'cLeArStAmP'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1 2')  # Too many arguments
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name}')  # Missing argument
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} invalid')  # Invalid argument
+        
+        stamp_id = stamp()
+        assert sc(f'{name} {stamp_id}') == 1
+
+
+def test_clearstamps():
+    for name in ('css', 'clearstamps', 'CSS', 'CLEARSTAMPS', 'cLeArStAmPs'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1 2')  # Too many arguments
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} invalid')  # Invalid argument
+        
+        assert sc(f'{name} 0') == 1
+        assert sc(f'{name} 2') == 1
+        assert sc(f'{name} -2') == 1
+        assert sc(f'{name}') == 1
+
+def test_speed():
+    for name in ('speed', 'SPEED', 'sPeEd'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name}')  # Missing argument
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1 2')  # Too many arguments
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} invalid')  # Invalid argument
+        
+        # Test numeric settings 0 to 10:
+        for speed_setting in tuple(range(11)):
+            assert sc(f'{name} {speed_setting}') == 1
+            assert speed() == speed_setting
+        # Test string settings:
+        for speed_setting, numeric_equivalent in {'fastest': 0, 'fast': 10, 'normal': 6, 'slow': 3, 'slowest': 1, 'FASTEST': 0, 'FAST': 10, 'NORMAL': 6, 'SLOW': 3, 'SLOWEST': 1}.items():
+            assert sc(f'{name} {speed_setting}') == 1
+            assert speed() == numeric_equivalent
+        
+        tracer(10000, 0)  # Restore the original tracer settings for other tests.
+
+        
+
+
+
 def test_colorful_squares():
     sc('t 1000 0, ps 4')
 
@@ -820,7 +907,6 @@ def test_curve_path_filled():
         sc(f'h, ef')
     sc('u')
     sc('reset')
-
 
 
 if __name__ == '__main__':
