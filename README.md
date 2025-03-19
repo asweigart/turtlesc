@@ -111,7 +111,7 @@ Here is a complete reference of supported shortcuts:
 | `sc('ps 4')` | [`pensize(4)`](https://docs.python.org/3/library/turtle.html#turtle.pensize) |
 | `sc('pc 1.0 0.0 0.5')` | [`pencolor(1.0, 0.0, 0.5)`](https://docs.python.org/3/library/turtle.html#turtle.pencolor) |
 | `sc('fc 255 0 128')` | [`fillcolor(255, 0, 128)`](https://docs.python.org/3/library/turtle.html#turtle.fillcolor) |
-| `sc('bc FF00FF')` | [`bgcolor(255, 0, 255)`](https://docs.python.org/3/library/turtle.html#turtle.bgcolor) |
+| `sc('bc #FF00FF')` | [`bgcolor('#FF00FF')`](https://docs.python.org/3/library/turtle.html#turtle.bgcolor) |
 | `sc('sh 90')` | [`setheading(90)`](https://docs.python.org/3/library/turtle.html#turtle.setheading) |
 | `sc('cir 10')` | [`circle(10)`](https://docs.python.org/3/library/turtle.html#turtle.circle) |
 | `sc('undo')` | [`undo()`](https://docs.python.org/3/library/turtle.html#turtle.undo) |
@@ -152,11 +152,9 @@ You can pass multiple strings to `sc()`. For example, `sc('f 100', 'r 45', 'f 10
 The `'pc'`, `'fc'`, and `'bc'` shortcuts for pen color, fill color, and background color can take a color argument as:
 
 * A color name, such as `'red'`
-* Three 0 to 255 integer values, such as `'255 0 0`
-* Three 0.0 to 1.0 float values, such as `'1.0 0.0 0.0`
-* A hexadecimal RGB code, with or without a leading # hashtag, such as `'#FF0000'` or `'FF0000'`
-
-All of these values work no matter if the color mode is 255 or 1.
+* Three 0 to 255 integer values, such as `'255 0 0` (turtle.py's [color mode](https://docs.python.org/3/library/turtle.html#turtle.colormode) must be set to 255)
+* Three 0.0 to 1.0 float values, such as `'1.0 0.0 0.0` (turtle.py's [color mode](https://docs.python.org/3/library/turtle.html#turtle.colormode) must be set to 255)
+* A hexadecimal RGB code, such as `'#FF0000'` (the leading # hashtag is required)
 
 The cardinal directions shortcuts change *both* the heading and position of the turtle.
 

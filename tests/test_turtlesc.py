@@ -339,6 +339,9 @@ def test_pencolor_fillcolor_bgcolor():
             sc(f'{name} 1 2')  # Too many arguments
 
         with pytest.raises(TurtleShortcutException):
+            sc(f'{name} FF0000')  # Missing the leading # for hex colors
+
+        with pytest.raises(TurtleShortcutException):
             sc(f'{name} invalid 0 0')  # Invalid argument
         with pytest.raises(TurtleShortcutException):
             sc(f'{name} 0 invalid 0')  # Invalid argument
@@ -377,11 +380,11 @@ def test_pencolor_fillcolor_bgcolor():
                 assert function_to_test() == color_name
         
         colormode(255)
-        assert sc(f'{name} FF0000') == 1
+        assert sc(f'{name} #FF0000') == 1
         assert function_to_test() == (255, 0, 0.0)
 
         colormode(1)
-        assert sc(f'{name} FF0000') == 1
+        assert sc(f'{name} #FF0000') == 1
         assert function_to_test() == (1, 0, 0.0)
 
         with pytest.raises(TurtleShortcutException):

@@ -477,16 +477,12 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                 raise TurtleShortcutException(shortcut + ' is invalid because colormode is 1.0 and one or more RGB color values are greater than 1.0.')
             
         elif len(shortcut_parts) == 2:
-            # We expect the color arg to be a string like 'blue' or '#FF0000' or 'FF0000':
+            # We expect the color arg to be a string like 'blue' or '#FF0000':
             raise_exception = False
 
-            if re.match(r'^[0-9A-Fa-f]{6}$', shortcut_parts[1]):
+            if re.match(r'^#[0-9A-Fa-f]{6}$', shortcut_parts[1]):
                 # Color arg is a hex code like '#FF0000', and not a name like 'blue'.
-
-                # NOTE: I have checked every combination from 000000 to FFFFFF and there is no 
-                # overlap with six-letter color names like 'yellow'.
-                shortcut_parts[1] = '#' + shortcut_parts[1]
-                # NOTE: In this case, color_arg_is_color_name remains False
+                color_arg_is_color_name = False  # It's already False, but I put this here to be explicit.
             else:
                 # shortcut_parts[1] must be a color name like 'blue'
                 color_arg_is_color_name = True
@@ -499,7 +495,10 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             except turtle.TurtleGraphicsError:
                 raise_exception = True  # We don't raise here so we can hide the original TurtleGraphicsError and make the stack trace a bit neater.
             if raise_exception:
-                raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `' + shortcut_parts[1] + '` is not a valid color.')
+                if re.match(r'^[0-9A-Fa-f]{6}$', shortcut_parts[1]):
+                    raise TurtleShortcutException('Syntax error in `' + shortcut + "`: '" + shortcut_parts[1] + "' is not a valid color. Did you mean '# " + shortcut_parts[1] + "'?")
+                else:
+                    raise TurtleShortcutException('Syntax error in `' + shortcut + "`: '" + shortcut_parts[1] + "' is not a valid color.")
             
             # NOTE: This code here is to handle an unfixed bug in turtle.py. If the color mode is 1.0 and you set
             # the color to (1.0, 0.0, 0.0) and then change the color mode to 255, the color will be (255.0, 0.0, 0.0)
