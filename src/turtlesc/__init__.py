@@ -1,13 +1,15 @@
 import turtle, time, re
 
-ALL_SHORTCUTS = 'f b l r h c g x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd' + \
+ALL_SHORTCUTS = 'f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd' + \
     'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
     'circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update' + \
     'tracer hide show dot clearstamp clearstamps degrees radians speed'
 
+CARDINAL_TO_DEGREES = {'n': '90', 's': '270', 'e': '0', 'w': '180', 'nw': '135', 'ne': '45', 'sw': '225', 'se': '315'}
+
 _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left': 'l', 'home': 'h', 'clear': 'c', 
-        'goto': 'g', 'setx': 'x', 'sety': 'y', 'stamp': 'st', 'update': 'u', 'pendown': 'pd', 'penup': 'pu', 'pensize': 'ps', 
-        'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir', 
+        'goto': 'g', 'teleport': 'tele', 'setx': 'x', 'sety': 'y', 'stamp': 'st', 'update': 'u', 'pendown': 'pd', 'penup': 'pu', 
+        'pensize': 'ps', 'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir', 
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
         'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't',
         'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd'}
@@ -15,7 +17,10 @@ _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left
 class TurtleShortcutException(Exception):
     pass
 
-def sc(*args, turtle_obj=None): # type: () -> int
+def sc(*args, turtle_obj=None, _return_turtle_code=False): # type: () -> int
+    """TODO
+    """
+
     """Supported commands:
 
     f N - forward(N)
@@ -25,6 +30,7 @@ def sc(*args, turtle_obj=None): # type: () -> int
     h - home()
     c - clear()
     g X Y - goto(X, Y)
+    tele X Y - teleport(X, Y)
     x X - setx(X)
     y Y - sety(Y)
     st - stamp()
@@ -39,7 +45,6 @@ def sc(*args, turtle_obj=None): # type: () -> int
     undo - undo()
     bf - begin_fill()
     ef - end_fill()
-    to X Y - towards(X, Y)
     reset - reset()
 
     sleep N - time.sleep(N)
@@ -78,14 +83,14 @@ def sc(*args, turtle_obj=None): # type: () -> int
     radians - radians()
     
     spd N - speed(N) but N can also be 'fastest', 'fast', 'normal', 'slow', 'slowest'
-    shape N - shape(N) where N can be “arrow”, “turtle”, “circle”, “square”, “triangle”, “classic”
-    resizemode N - resizemode(N) where N can be “auto”, “user”, or "noresize"
-    bgpic N - bgpic(N) where the N filename cannot have a comma in it.
+    !!shape N - shape(N) where N can be “arrow”, “turtle”, “circle”, “square”, “triangle”, “classic”
+    !!resizemode N - resizemode(N) where N can be “auto”, “user”, or "noresize"
+    !!bgpic N - bgpic(N) where the N filename cannot have a comma in it.
 
-    shapesize N1 N2 N3 - shapesize(N1, N2, N3)
-    settiltangle N - settiltangle(N)
-    tilt N - tilt(N)
-    tiltangle N - tiltangle(N)
+    !!shapesize N1 N2 N3 - shapesize(N1, N2, N3)
+    !!settiltangle N - settiltangle(N)
+    !!tilt N - tilt(N)
+    !!tiltangle N - tiltangle(N)
     
 
 
@@ -101,7 +106,10 @@ def sc(*args, turtle_obj=None): # type: () -> int
     Whitespace is insignificant. '   f     100   ' is the same as 'f 100'
     """
 
+    """
 
+    
+    """
     # Join multiple arg strings into one, separated by commas:
     shortcuts = ','.join(args)
 
@@ -119,15 +127,20 @@ def sc(*args, turtle_obj=None): # type: () -> int
 
     # Go through and actually run all the shortcuts:
     count_of_shortcuts_run = 0
+    turtle_code = tuple()
     for shortcut in shortcuts.split(','):
-        count_of_shortcuts_run += _run_shortcut(shortcut, turtle_obj=turtle_obj)
-         
-    return count_of_shortcuts_run
-
-
-def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
-    # NOTE: The nsew shortcuts only work properly in degrees mode, not radians mode.
+        if _return_turtle_code:
+            turtle_code += _run_shortcut(shortcut, turtle_obj=turtle_obj, _return_turtle_code=True)
+        else:
+            count_of_shortcuts_run += _run_shortcut(shortcut, turtle_obj=turtle_obj)
     
+    if _return_turtle_code:
+        return turtle_code
+    else:
+        return count_of_shortcuts_run
+
+
+def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=False):
     if turtle_obj is None:
         turtle_obj = turtle  # Use the main turtle given by the module.
 
@@ -173,27 +186,53 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
         if not dry_run:
             # Run the shortcut that has exactly one numeric argument:
             if _sc == 'f':
+                if _return_turtle_code:
+                    return ('forward(' + shortcut_parts[1] + ')',)
                 turtle_obj.forward(float(shortcut_parts[1]))
             elif _sc == 'b':
+                if _return_turtle_code:
+                    return ('backward(' + shortcut_parts[1] + ')',)
                 turtle_obj.backward(float(shortcut_parts[1]))    
             elif _sc == 'r':
+                if _return_turtle_code:
+                    return ('right(' + shortcut_parts[1] + ')',)
                 turtle_obj.right(float(shortcut_parts[1]))    
             elif _sc == 'l':
+                if _return_turtle_code:
+                    return ('left(' + shortcut_parts[1] + ')',)
                 turtle_obj.left(float(shortcut_parts[1]))    
             elif _sc == 'x':
+                if _return_turtle_code:
+                    return ('setx(' + shortcut_parts[1] + ')',)
                 turtle_obj.setx(float(shortcut_parts[1]))    
             elif _sc == 'y':
+                if _return_turtle_code:
+                    return ('sety(' + shortcut_parts[1] + ')',)
                 turtle_obj.sety(float(shortcut_parts[1]))    
             elif _sc == 'ps':
+                if _return_turtle_code:
+                    return ('pensize(' + shortcut_parts[1] + ')',)
                 turtle_obj.pensize(float(shortcut_parts[1]))    
             elif _sc == 'sh':
+                if _return_turtle_code:
+                    return ('setheading(' + shortcut_parts[1] + ')',)
                 turtle_obj.setheading(float(shortcut_parts[1]))
             elif _sc == 'cir':
+                if _return_turtle_code:
+                    return ('circle(' + shortcut_parts[1] + ')',)
                 turtle_obj.circle(float(shortcut_parts[1]))    
             elif _sc == 'sleep':
+                if _return_turtle_code:
+                    return ('sleep(' + shortcut_parts[1] + ')', )
                 time.sleep(float(shortcut_parts[1]))
             elif _sc in ('n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'):
                 originally_in_radians_mode = in_radians_mode()
+
+                if _return_turtle_code:
+                    if originally_in_radians_mode:
+                        return ('degrees()', 'setheading(' + CARDINAL_TO_DEGREES[_sc] + ')', 'forward(' + shortcut_parts[1] + ')', 'radians()')
+                    else:
+                        return ('setheading(' + CARDINAL_TO_DEGREES[_sc] + ')', 'forward(' + shortcut_parts[1] + ')')                
                 turtle.degrees()
                 if _sc == 'n':
                     turtle.setheading(90)
@@ -217,10 +256,16 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 if originally_in_radians_mode:
                     turtle.radians()
             elif _sc == 'dot':
+                if _return_turtle_code:
+                    return ('dot(' + shortcut_parts[1] + ')',)
                 turtle_obj.dot(float(shortcut_parts[1]))
             elif _sc == 'cs':
+                if _return_turtle_code:
+                    return ('clearstamp(' + shortcut_parts[1] + ')',)
                 turtle_obj.clearstamp(float(shortcut_parts[1]))
             elif _sc == 'spd':
+                if _return_turtle_code:
+                    return ('speed(' + str(shortcut_parts[1]) + ')',)
                 turtle_obj.speed(float(shortcut_parts[1]))
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc
@@ -249,8 +294,12 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
             # Run the shortcut:
             if _sc == 'css':
                 if len(shortcut_parts) == 1:
+                    if _return_turtle_code:
+                        return ('clearstamps()',)
                     turtle_obj.clearstamps()
                 elif len(shortcut_parts) == 2:
+                    if _return_turtle_code:
+                        return ('clearstamps(' + shortcut_parts[1] + ')',)
                     turtle_obj.clearstamps(int(shortcut_parts[1]))
                 else:  # pragma: no cover
                     assert False, 'Unhandled shortcut: ' + _sc
@@ -264,7 +313,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
 
 
     # SHORTCUTS THAT TAKE EXACTLY TWO NUMERIC ARGUMENTS:
-    elif _sc in ('g', 't'):
+    elif _sc in ('g', 't', 'tele'):
         if len(shortcut_parts) < 3:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing two required numeric argument.')
         elif len(shortcut_parts) > 3:
@@ -290,9 +339,17 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
 
             # Run the shortcut:
             if _sc == 'g':
+                if _return_turtle_code:
+                    return ('goto(' + shortcut_parts[1] + ', ' + shortcut_parts[2] + ')',)
                 turtle_obj.goto(x, y)
             elif _sc == 't':
+                if _return_turtle_code:
+                    return ('tracer(' + shortcut_parts[1] + ', ' + shortcut_parts[2] + ')',)
                 turtle.tracer(x, y)  # Note: tracer() is not a Turtle method, there's only the global tracer() function.
+            elif _sc == 'tele':
+                if _return_turtle_code:
+                    return ('teleport(' + shortcut_parts[1] + ', ' + shortcut_parts[2] + ')',)
+                turtle_obj.teleport(x, y)
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc 
             count_of_shortcuts_run += 1
@@ -309,34 +366,64 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
         if not dry_run:
             # Run the shortcut that has exactly zero arguments:
             if _sc == 'h':
+                if _return_turtle_code:
+                    return ('home()',)
                 turtle_obj.home()
             elif _sc == 'c':
+                if _return_turtle_code:
+                    return ('clear()',)
                 turtle_obj.clear()
             elif _sc == 'st':
+                if _return_turtle_code: 
+                    return ('stamp()',)
                 turtle_obj.stamp()
             elif _sc == 'pd':
+                if _return_turtle_code:
+                    return ('pendown()',)
                 turtle_obj.pendown()
             elif _sc == 'pu':
+                if _return_turtle_code:
+                    return ('penup()',)
                 turtle_obj.penup()
             elif _sc == 'undo':
+                if _return_turtle_code:
+                    return ('undo()',)
                 turtle_obj.undo()
             elif _sc == 'bf':
+                if _return_turtle_code:
+                    return ('begin_fill()',)
                 turtle_obj.begin_fill()
             elif _sc == 'ef':
+                if _return_turtle_code:
+                    return ('end_fill()',)
                 turtle_obj.end_fill()
             elif _sc == 'reset':
+                if _return_turtle_code:
+                    return ('reset()',)
                 turtle_obj.reset()
             elif _sc == 'bye':  # pragma: no cover
+                if _return_turtle_code:
+                    return ('bye()',)
                 turtle_obj.bye()
             elif _sc == 'done':  # pragma: no cover
+                if _return_turtle_code:
+                    return ('done()',)
                 turtle_obj.done()
             elif _sc == 'exitonclick':  # pragma: no cover
+                if _return_turtle_code:
+                    return ('exitonclick()',)
                 turtle_obj.exitonclick()
             elif _sc == 'u':
+                if _return_turtle_code:
+                    return ('update()',)
                 turtle_obj.update()
             elif _sc == 'show':
+                if _return_turtle_code:
+                    return ('showturtle()',)
                 turtle_obj.showturtle()
             elif _sc == 'hide':
+                if _return_turtle_code:
+                    return ('hideturtle()',)
                 turtle_obj.hideturtle()
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc
@@ -350,6 +437,8 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing required RGB argument.')
         elif len(shortcut_parts) not in (2, 4):
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Invalid RGB argument. It must either be a color name like `red` or three numbers like `1.0 0.5 0.0` or `255 0 255` or `FF 00 FF`.')
+
+        color_arg_is_color_name = False
 
         if len(shortcut_parts) == 4:
             # We expect the color arg to either be something like (255, 0, 0) or (1.0, 0.0, 0.0):
@@ -398,15 +487,17 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
             else:
                 # shortcut_parts[1] must be a color name like 'blue'
                 color_arg = shortcut_parts[1]
+                color_arg_is_color_name = True
 
+            # Test the color name by actually calling pencolor():
+            original_pen_color = turtle_obj.pencolor()
             try:
                 turtle_obj.pencolor(color_arg)
             except turtle.TurtleGraphicsError:
                 raise_exception = True  # We don't raise here so we can hide the original TurtleGraphicsError and make the stack trace a bit neater.
-
             if raise_exception:
                 raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `' + shortcut_parts[1] + '` is not a valid color.')
-
+            turtle_obj.pencolor(original_pen_color)
 
         if not dry_run:
             if isinstance(color_arg, tuple):
@@ -422,7 +513,29 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
                 color_arg = (int(color_arg[0]), int(color_arg[1]), int(color_arg[2]))
             elif temp_switch_to_mode_1:
                 turtle_obj.colormode(1.0)
+
+            # Return the turtle code, if that was asked:
+            if _return_turtle_code:
+                if _sc == 'pc':
+                    func_name_prefix = 'pen'
+                elif _sc == 'fc':
+                    func_name_prefix = 'fill'
+                elif _sc == 'bc':
+                    func_name_prefix = 'bg'
+
+                if temp_switch_to_mode_255:
+                    turtle_obj.colormode(1.0)
+                    return ('colormode(255)', func_name_prefix + 'color(' + str(color_arg) + ')', 'colormode(1.0)')
+                elif temp_switch_to_mode_1:
+                    turtle_obj.colormode(255)
+                    return ('colormode(1.0)', func_name_prefix + 'color(' + str(color_arg) + ')', 'colormode(255)')
+                else:
+                    if color_arg_is_color_name:
+                        return (func_name_prefix + "color('" + str(color_arg) + "')",)
+                    else:
+                        return (func_name_prefix + 'color(' + str(color_arg) + ')',)
             
+
             # Run the shortcut that has an RGB color argument:
             if _sc == 'pc':
                 turtle_obj.pencolor(color_arg)
@@ -441,6 +554,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False):
 
     return count_of_shortcuts_run
 
+
 def in_radians_mode():
     """Returns True if turtle is in radians mode, False if in degrees mode."""
     original_heading = turtle.heading()
@@ -453,8 +567,12 @@ def in_radians_mode():
         turtle.degrees()  # Switch back to degrees mode.
         return False
 
+
 def in_degrees_mode():
     """Returns True if turtle is in degrees mode, False if in radians mode."""
     return not in_radians_mode()
 
 
+def get_turtle_code(*args):
+    """Returns the Python code that would be executed by the sc() function."""
+    return sc(*args, _return_turtle_code=True)

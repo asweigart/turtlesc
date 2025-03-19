@@ -3,6 +3,7 @@ from turtle import *
 from turtlesc import *
 from random import *
 
+seed(42)  # Keep at 42 for reproducible tests (dependent on which tests are run and in what order, anyway)
 tracer(10000, 0)
 
 def test_basic_sc_calls():
@@ -174,6 +175,31 @@ def test_clear():
 
 def test_goto():
     for name in ('g', 'goto', 'G', 'GOTO', 'gOtO'):
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name}')  # Missing argument
+        with pytest.raises(TurtleShortcutException):   
+            sc(f'{name} 1')  # Missing second argument
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1 2 3')  # Too many arguments
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 1 invalid')
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} invalid 2')
+    
+        assert sc(f'{name} 1 2') == 1
+        assert pos() == (1, 2)
+        assert sc(f'{name} -3 -4') == 1
+        assert pos() == (-3, -4)
+        assert sc(f'{name} 0 0') == 1
+        assert pos() == (0, 0)
+        assert sc(f'{name} 0.5 0.5') == 1   
+        assert pos() == (0.5, 0.5)
+        assert sc(f'{name} -0.5 -0.5') == 1
+        assert pos() == (-0.5, -0.5)
+
+
+def test_tele():
+    for name in ('tele', 'TELE', 'tElE', 'teleport', 'TELEPORT', 'tElEpOrT'):
         with pytest.raises(TurtleShortcutException):
             sc(f'{name}')  # Missing argument
         with pytest.raises(TurtleShortcutException):   
@@ -860,8 +886,122 @@ def test_speed():
         tracer(10000, 0)  # Restore the original tracer settings for other tests.
 
         
+def test_get_turtle_code():
+    assert get_turtle_code('f 100') == ('forward(100)',)
+    assert get_turtle_code('b 100') == ('backward(100)',)
+    assert get_turtle_code('l 90') == ('left(90)',)
+    assert get_turtle_code('r 90') == ('right(90)',)
+    assert get_turtle_code('g 100 200') == ('goto(100, 200)',)
+    assert get_turtle_code('sh 90') == ('setheading(90)',)
+    assert get_turtle_code('pu') == ('penup()',)
+    assert get_turtle_code('pd') == ('pendown()',)
+    assert get_turtle_code('ps 10') == ('pensize(10)',)
+    assert get_turtle_code('bf') == ('begin_fill()',)
+    assert get_turtle_code('ef') == ('end_fill()',)
+    assert get_turtle_code('reset') == ('reset()',)
+    assert get_turtle_code('sleep 1') == ('sleep(1)',)
+    assert get_turtle_code('t 100 0') == ('tracer(100, 0)',)
+    assert get_turtle_code('u') == ('update()',)
+    assert get_turtle_code('show') == ('showturtle()',)
+    assert get_turtle_code('hide') == ('hideturtle()',)
+    assert get_turtle_code('dot 10') == ('dot(10)',)
+    assert get_turtle_code('cs 1') == ('clearstamp(1)',)
+    assert get_turtle_code('css') == ('clearstamps()',)
+    assert get_turtle_code('css 1') == ('clearstamps(1)',)
+    assert get_turtle_code('st') == ('stamp()',)
+    assert get_turtle_code('speed 1') == ('speed(1)',)
+    assert get_turtle_code('home') == ('home()',)
+    assert get_turtle_code('x 100') == ('setx(100)',)
+    assert get_turtle_code('y 100') == ('sety(100)',)
+    assert get_turtle_code('setx 100') == ('setx(100)',)
+    assert get_turtle_code('sety 100') == ('sety(100)',)
+    assert get_turtle_code('c') == ('clear()',)
+    assert get_turtle_code('undo') == ('undo()',)
+    assert get_turtle_code('cir 100') == ('circle(100)',)
+    assert get_turtle_code('g 100 200') == ('goto(100, 200)',)
+    assert get_turtle_code('tele 100 200') == ('teleport(100, 200)',)
+
+    assert get_turtle_code('pc red') == ("pencolor('red')",)
+    assert get_turtle_code('fc red') == ("fillcolor('red')",)
+    assert get_turtle_code('bc red') == ("bgcolor('red')",)
+
+    colormode(255)
+    assert get_turtle_code('pc red') == ("pencolor('red')",)
+    assert get_turtle_code('pc 255 0 0') == ('pencolor((255.0, 0.0, 0.0))',)
+    assert get_turtle_code('fc 255 0 0') == ('fillcolor((255.0, 0.0, 0.0))',)
+    assert get_turtle_code('bc 255 0 0') == ('bgcolor((255.0, 0.0, 0.0))',)
+
+    assert get_turtle_code('pc 1.0 0.0 0.0') == ('colormode(1.0)', 'pencolor((1.0, 0.0, 0.0))', 'colormode(255)')
+    assert get_turtle_code('fc 1.0 0.0 0.0') == ('colormode(1.0)', 'fillcolor((1.0, 0.0, 0.0))', 'colormode(255)')
+    assert get_turtle_code('bc 1.0 0.0 0.0') == ('colormode(1.0)', 'bgcolor((1.0, 0.0, 0.0))', 'colormode(255)')
+    
+    colormode(1.0)
+    assert get_turtle_code('pc red') == ("pencolor('red')",)
+    assert get_turtle_code('pc 255 0 0') == ('colormode(255)', 'pencolor((255, 0, 0))', 'colormode(1.0)')
+    assert get_turtle_code('fc 255 0 0') == ('colormode(255)', 'fillcolor((255, 0, 0))', 'colormode(1.0)')
+    assert get_turtle_code('bc 255 0 0') == ('colormode(255)', 'bgcolor((255, 0, 0))', 'colormode(1.0)')
+
+    assert get_turtle_code('pc 1.0 0.0 0.0') == ('pencolor((1.0, 0.0, 0.0))',)
+    assert get_turtle_code('fc 1.0 0.0 0.0') == ('fillcolor((1.0, 0.0, 0.0))',)
+    assert get_turtle_code('bc 1.0 0.0 0.0') == ('bgcolor((1.0, 0.0, 0.0))',)
+    
+    
+    
+    degrees()
+    assert get_turtle_code('n 100') == ('setheading(90)', 'forward(100)')
+    assert get_turtle_code('s 100') == ('setheading(270)', 'forward(100)')
+    assert get_turtle_code('e 100') == ('setheading(0)', 'forward(100)')
+    assert get_turtle_code('w 100') == ('setheading(180)', 'forward(100)')
+    assert get_turtle_code('nw 100') == ('setheading(135)', 'forward(100)')
+    assert get_turtle_code('ne 100') == ('setheading(45)', 'forward(100)')
+    assert get_turtle_code('sw 100') == ('setheading(225)', 'forward(100)')
+    assert get_turtle_code('se 100') == ('setheading(315)', 'forward(100)')
+    assert get_turtle_code('north 100') == ('setheading(90)', 'forward(100)')
+    assert get_turtle_code('south 100') == ('setheading(270)', 'forward(100)')
+    assert get_turtle_code('east 100') == ('setheading(0)', 'forward(100)')
+    assert get_turtle_code('west 100') == ('setheading(180)', 'forward(100)')
+    assert get_turtle_code('northwest 100') == ('setheading(135)', 'forward(100)')
+    assert get_turtle_code('northeast 100') == ('setheading(45)', 'forward(100)')
+    assert get_turtle_code('southwest 100') == ('setheading(225)', 'forward(100)')
+    assert get_turtle_code('southeast 100') == ('setheading(315)', 'forward(100)')
+    assert get_turtle_code('N 100') == ('setheading(90)', 'forward(100)')
+    assert get_turtle_code('S 100') == ('setheading(270)', 'forward(100)')
+    assert get_turtle_code('E 100') == ('setheading(0)', 'forward(100)')
+    assert get_turtle_code('W 100') == ('setheading(180)', 'forward(100)')
+    assert get_turtle_code('NW 100') == ('setheading(135)', 'forward(100)')
+    assert get_turtle_code('NE 100') == ('setheading(45)', 'forward(100)')
+    assert get_turtle_code('SW 100') == ('setheading(225)', 'forward(100)')
+    assert get_turtle_code('SE 100') == ('setheading(315)', 'forward(100)')
+    assert get_turtle_code('NORTH 100') == ('setheading(90)', 'forward(100)')
+    assert get_turtle_code('SOUTH 100') == ('setheading(270)', 'forward(100)')
+    assert get_turtle_code('EAST 100') == ('setheading(0)', 'forward(100)')
+    assert get_turtle_code('WEST 100') == ('setheading(180)', 'forward(100)')
+    assert get_turtle_code('NORTHWEST 100') == ('setheading(135)', 'forward(100)')
+    assert get_turtle_code('NORTHEAST 100') == ('setheading(45)', 'forward(100)')
+    assert get_turtle_code('SOUTHWEST 100') == ('setheading(225)', 'forward(100)')
+    assert get_turtle_code('SOUTHEAST 100') == ('setheading(315)', 'forward(100)')
+    assert get_turtle_code('n 100, f 100') == ('setheading(90)', 'forward(100)', 'forward(100)')
+    assert get_turtle_code('n 100, f 100, f 100') == ('setheading(90)', 'forward(100)', 'forward(100)', 'forward(100)')
+
+    radians()
+    assert get_turtle_code('n 100') == ('degrees()', 'setheading(90)', 'forward(100)', 'radians()')
+    assert get_turtle_code('s 100') == ('degrees()', 'setheading(270)', 'forward(100)', 'radians()')
+    assert get_turtle_code('e 100') == ('degrees()', 'setheading(0)', 'forward(100)', 'radians()')
+    assert get_turtle_code('w 100') == ('degrees()', 'setheading(180)', 'forward(100)', 'radians()')
+    assert get_turtle_code('nw 100') == ('degrees()', 'setheading(135)', 'forward(100)', 'radians()')
+    assert get_turtle_code('ne 100') == ('degrees()', 'setheading(45)', 'forward(100)', 'radians()')
+    assert get_turtle_code('sw 100') == ('degrees()', 'setheading(225)', 'forward(100)', 'radians()')
+    assert get_turtle_code('se 100') == ('degrees()', 'setheading(315)', 'forward(100)', 'radians()')
+
+    degrees()
 
 
+
+
+
+
+
+# EXAMPLE PROGRAMS:
 
 def test_colorful_squares():
     sc('t 1000 0, ps 4')
