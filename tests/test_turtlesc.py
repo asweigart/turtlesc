@@ -322,13 +322,21 @@ def test_stamp():
         assert sc(f'{name}') == 1
 
 
-def test_pencolor():
-    for name in ('pc', 'pencolor', 'PC', 'PENCOLOR', 'pEnCoLoR'):
+def test_pencolor_fillcolor_bgcolor():
+    for name in ('pc', 'pencolor', 'PC', 'PENCOLOR', 'pEnCoLoR', 'fc', 'fillcolor', 'FC', 'FILLCOLOR', 'fIlLcOlOr', 'bc', 'bgcolor', 'BC', 'BGCOLOR', 'bGcOlOr'):
+        function_to_test = None
+        if name.lower().startswith('p'):
+            function_to_test = pencolor
+        elif name.lower().startswith('f'):
+            function_to_test = fillcolor
+        elif name.lower().startswith('b'):
+            function_to_test = bgcolor
+            
         with pytest.raises(TurtleShortcutException):
             sc(f'{name}')  # Missing argument
 
         with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 1 2')  # Missing argument
+            sc(f'{name} 1 2')  # Too many arguments
 
         with pytest.raises(TurtleShortcutException):
             sc(f'{name} invalid 0 0')  # Invalid argument
@@ -340,155 +348,45 @@ def test_pencolor():
 
         colormode(1.0)  # Set to 1.0 for testing
 
-        pencolor('black')  # Reset to black
+        function_to_test('black')  # Reset to black
         assert sc(f'{name} red') == 1
-        assert pencolor() == 'red'
+        assert function_to_test() == 'red'
 
-        pencolor('black')  # Reset to black
+        function_to_test('black')  # Reset to black
         assert sc(f'{name} red') == 1
-        assert pencolor() == 'red'
+        assert function_to_test() == 'red'
 
-        pencolor('black')  # Reset to black
+        function_to_test('black')  # Reset to black
         assert sc(f'{name} 1 0 0') == 1
-        assert pencolor() == (1.0, 0.0, 0.0)
+        assert function_to_test() == (1.0, 0.0, 0.0)
 
-        pencolor('black')  # Reset to black
+        function_to_test('black')  # Reset to black
         assert sc(f'{name} 1.0 0.0 0.0') == 1
-        assert pencolor() == (1.0, 0.0, 0.0)
+        assert function_to_test() == (1.0, 0.0, 0.0)
 
-        pencolor('black')  # Reset to black
-        assert sc(f'{name} 255 0 0') == 1  # Test that temporarily setting colormode to 255 works.
-        assert pencolor() == (1.0, 0.0, 0.0)
+        with pytest.raises(TurtleShortcutException):
+            sc(f'{name} 255 0 0')
 
-        colormode(255) # Test that temporarily setting colormode to 1 works.
-        assert sc(f'{name} 0 1.0 0') == 1
         colormode(1.0)
-        assert pencolor() == (0, 1, 0)
+        assert function_to_test() != (0, 255, 0)  # Make sure it's not returning a 255 mode value.
 
-        for color_name in 'black blue brown orange gray grey green purple violet pink yellow white red magenta cyan'.split():
-            assert sc(f'{name} {color_name}') == 1
-            assert pencolor() == color_name
+        for color_mode_setting in (255, 1.0):
+            colormode(color_mode_setting)
+            for color_name in 'black blue brown orange gray grey green purple violet pink yellow white red magenta cyan'.split():
+                assert sc(f'{name} {color_name}') == 1
+                assert function_to_test() == color_name
         
         colormode(255)
         assert sc(f'{name} FF0000') == 1
-        assert pencolor() == (255, 0, 0.0)
+        assert function_to_test() == (255, 0, 0.0)
 
         colormode(1)
         assert sc(f'{name} FF0000') == 1
-        assert pencolor() == (1, 0, 0.0)
+        assert function_to_test() == (1, 0, 0.0)
 
         with pytest.raises(TurtleShortcutException):
             sc(f'{name} xxyyzz')  # Invalid color name
 
-
-def test_fillcolor():
-    for name in ('fc', 'fillcolor', 'FC', 'FILLCOLOR', 'fIlLcOlOr'):
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name}')  # Missing argument
-
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 1 2')  # Missing argument
-
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} invalid 0 0')  # Invalid argument
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 0 invalid 0')  # Invalid argument
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 0 0 invalid')  # Invalid argument
-
-
-        colormode(1.0)  # Set to 1.0 for testing
-
-        fillcolor('black')  # Reset to black
-        assert sc(f'{name} red') == 1
-        assert fillcolor() == 'red'
-
-        fillcolor('black')  # Reset to black
-        assert sc(f'{name} red') == 1
-        assert fillcolor() == 'red'
-
-        fillcolor('black')  # Reset to black
-        assert sc(f'{name} 1 0 0') == 1
-        assert fillcolor() == (1.0, 0.0, 0.0)
-
-        fillcolor('black')  # Reset to black
-        assert sc(f'{name} 1.0 0.0 0.0') == 1
-        assert fillcolor() == (1.0, 0.0, 0.0)
-
-        pencolor('black')  # Reset to black
-        assert sc(f'{name} 255 0 0') == 1  # Test that temporarily setting colormode to 255 works.
-        assert fillcolor() == (1.0, 0.0, 0.0)
-
-        colormode(255) # Test that temporarily setting colormode to 1 works.
-        assert sc(f'{name} 0 1.0 0') == 1
-        colormode(1.0)
-        assert fillcolor() == (0, 1, 0)
-
-        for color_name in 'black blue brown orange gray grey green purple violet pink yellow white red magenta cyan'.split():
-            assert sc(f'{name} {color_name}') == 1
-            assert fillcolor() == color_name
-
-        colormode(255)
-        assert sc(f'{name} FF0000') == 1
-        assert fillcolor() == (255, 0, 0.0)
-
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} xxyyzz')  # Invalid color name
-
-
-def test_bgcolor():
-    for name in ('bc', 'bgcolor', 'BC', 'BGCOLOR', 'bGcOlOr'):
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name}')  # Missing argument
-
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 1 2')  # Missing argument
-
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} invalid 0 0')  # Invalid argument
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 0 invalid 0')  # Invalid argument
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} 0 0 invalid')  # Invalid argument
-
-
-        colormode(1.0)  # Set to 1.0 for testing
-
-        bgcolor('black')  # Reset to black
-        assert sc(f'{name} red') == 1
-        assert bgcolor() == 'red'
-
-        bgcolor('black')  # Reset to black
-        assert sc(f'{name} red') == 1
-        assert bgcolor() == 'red'
-
-        bgcolor('black')  # Reset to black
-        assert sc(f'{name} 1 0 0') == 1
-        assert bgcolor() == (1.0, 0.0, 0.0)
-
-        bgcolor('black')  # Reset to black
-        assert sc(f'{name} 1.0 0.0 0.0') == 1
-        assert bgcolor() == (1.0, 0.0, 0.0)
-
-        bgcolor('black')  # Reset to black
-        assert sc(f'{name} 255 0 0') == 1  # Test that temporarily setting colormode to 255 works.
-        assert bgcolor() == (1.0, 0.0, 0.0)
-
-        colormode(255) # Test that temporarily setting colormode to 1 works.
-        assert sc(f'{name} 0 1.0 0') == 1
-        colormode(1.0)
-        assert bgcolor() == (0, 1, 0)
-
-        for color_name in 'black blue brown orange gray grey green purple violet pink yellow white red magenta cyan'.split():
-            assert sc(f'{name} {color_name}') == 1
-            assert bgcolor() == color_name
-
-        colormode(255)
-        assert sc(f'{name} FF0000') == 1
-        assert bgcolor() == (255, 0, 0.0)
-
-        with pytest.raises(TurtleShortcutException):
-            sc(f'{name} xxyyzz')  # Invalid color name
 
 
 def test_circle():
@@ -927,19 +825,18 @@ def test_get_turtle_code():
 
     colormode(255)
     assert get_turtle_code('pc red') == ("pencolor('red')",)
-    assert get_turtle_code('pc 255 0 0') == ('pencolor((255.0, 0.0, 0.0))',)
-    assert get_turtle_code('fc 255 0 0') == ('fillcolor((255.0, 0.0, 0.0))',)
-    assert get_turtle_code('bc 255 0 0') == ('bgcolor((255.0, 0.0, 0.0))',)
-
-    assert get_turtle_code('pc 1.0 0.0 0.0') == ('colormode(1.0)', 'pencolor((1.0, 0.0, 0.0))', 'colormode(255)')
-    assert get_turtle_code('fc 1.0 0.0 0.0') == ('colormode(1.0)', 'fillcolor((1.0, 0.0, 0.0))', 'colormode(255)')
-    assert get_turtle_code('bc 1.0 0.0 0.0') == ('colormode(1.0)', 'bgcolor((1.0, 0.0, 0.0))', 'colormode(255)')
+    assert get_turtle_code('pc 255 0 0') == ('pencolor((255, 0, 0))',)
+    assert get_turtle_code('fc 255 0 0') == ('fillcolor((255, 0, 0))',)
+    assert get_turtle_code('bc 255 0 0') == ('bgcolor((255, 0, 0))',)
     
     colormode(1.0)
     assert get_turtle_code('pc red') == ("pencolor('red')",)
-    assert get_turtle_code('pc 255 0 0') == ('colormode(255)', 'pencolor((255, 0, 0))', 'colormode(1.0)')
-    assert get_turtle_code('fc 255 0 0') == ('colormode(255)', 'fillcolor((255, 0, 0))', 'colormode(1.0)')
-    assert get_turtle_code('bc 255 0 0') == ('colormode(255)', 'bgcolor((255, 0, 0))', 'colormode(1.0)')
+    with pytest.raises(TurtleShortcutException):
+        get_turtle_code('pc 255 0 0')
+    with pytest.raises(TurtleShortcutException):
+        get_turtle_code('fc 255 0 0')
+    with pytest.raises(TurtleShortcutException):
+        get_turtle_code('bc 255 0 0')
 
     assert get_turtle_code('pc 1.0 0.0 0.0') == ('pencolor((1.0, 0.0, 0.0))',)
     assert get_turtle_code('fc 1.0 0.0 0.0') == ('fillcolor((1.0, 0.0, 0.0))',)
@@ -1004,6 +901,7 @@ def test_get_turtle_code():
 # EXAMPLE PROGRAMS:
 
 def test_colorful_squares():
+    colormode(1.0)
     sc('t 1000 0, ps 4')
 
     for i in range(100):  # Draw 100 squares.
@@ -1017,11 +915,12 @@ def test_colorful_squares():
             sc(f'f {line_length}, l 90')
         sc('ef')
 
-    sc('u')
-    sc('reset')
+    sc('u,reset')
 
 
 def test_draw_circles():
+    sc('t 1000 0, ps 1')
+
     # Draw circle in the top half of the window:
     sc('sh 0')  # Face right.
     for i in range(20):
@@ -1031,11 +930,12 @@ def test_draw_circles():
     sc('sh 180')  # Face left.
     for i in range(20):
         sc(f'cir {i * 10}')
-    sc('u')
-    sc('reset')
+    sc('u,reset')
 
 
 def test_curve_path_filled():
+    sc('t 1000 0, ps 1')
+    colormode(1.0)
     for i in range(50):
         sc(f'fc {random()} {random()} {random()}')
 
@@ -1045,8 +945,7 @@ def test_curve_path_filled():
         for j in range(randint(200, 600)):
             sc(f'f 1,l {randint(-4, 4)}')
         sc(f'h, ef')
-    sc('u')
-    sc('reset')
+    sc('u,reset')
 
 
 if __name__ == '__main__':

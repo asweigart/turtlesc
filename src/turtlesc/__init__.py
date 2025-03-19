@@ -433,12 +433,12 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
 
     # SHORTCUTS THAT TAKE AN RGB OR COLOR ARGUMENT:
     elif _sc in ('pc', 'fc', 'bc'):
+        color_arg_is_color_name = False  # Start as False. If it's a color name, we'll set this to True.
+
         if len(shortcut_parts) < 2:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing required RGB argument.')
         elif len(shortcut_parts) not in (2, 4):
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Invalid RGB argument. It must either be a color name like `red` or three numbers like `1.0 0.5 0.0` or `255 0 255` or `FF 00 FF`.')
-
-        color_arg_is_color_name = False
 
         if len(shortcut_parts) == 4:
             # We expect the color arg to either be something like (255, 0, 0) or (1.0, 0.0, 0.0):
@@ -465,29 +465,32 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             if raise_exception:
                 raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `' + shortcut_parts[3] + '` is not a number.')
 
-            color_arg = (float(shortcut_parts[1]), float(shortcut_parts[2]), float(shortcut_parts[3]))
+            if turtle_obj.colormode() == 1.0:
+                color_arg = (float(shortcut_parts[1]), float(shortcut_parts[2]), float(shortcut_parts[3]))
+            elif turtle_obj.colormode() == 255:
+                # Convert strings like '1.0' to floats first, then to int. (Calling int('1.0') would raise a ValueError.)
+                color_arg = (int(float(shortcut_parts[1])), int(float(shortcut_parts[2])), int(float(shortcut_parts[3])))
+            else:  # pragma: no cover
+                assert False, 'Unhandled colormode: ' + str(turtle_obj.colormode())
+
+            if turtle_obj.colormode() == 1.0 and (color_arg[0] > 1.0 or color_arg[1] > 1.0 or color_arg[2] > 1.0):
+                raise TurtleShortcutException(shortcut + ' is invalid because colormode is 1.0 and one or more RGB color values are greater than 1.0.')
+            
         elif len(shortcut_parts) == 2:
-            # We expect the color arg to be a string like 'blue' or 'ff0000' or '#FF0000:
+            # We expect the color arg to be a string like 'blue' or '#FF0000' or 'FF0000':
             raise_exception = False
 
-            # If the argument is an RGB value, convert to numbers:
-            shortcut_parts[1] = shortcut_parts[1].strip('#')
-            
-            # Lowercase possible color names:
-            shortcut_parts[1] = shortcut_parts[1].lower()
+            if re.match(r'^[0-9A-Fa-f]{6}$', shortcut_parts[1]):
+                # Color arg is a hex code like '#FF0000', and not a name like 'blue'.
 
-            if re.match(r'^[0-9a-f]{6}$', shortcut_parts[1]):
-                # Convert hex color to decimal color:
-                if turtle_obj.colormode() == 255:
-                    color_arg = (int(shortcut_parts[1][0:2], 16), int(shortcut_parts[1][2:4], 16), int(shortcut_parts[1][4:6], 16))
-                elif turtle_obj.colormode() == 1.0:
-                    color_arg = (int(shortcut_parts[1][0:2], 16) / 255.0, int(shortcut_parts[1][2:4], 16) / 255.0, int(shortcut_parts[1][4:6], 16) / 255.0)
-                else:  # pragma: no cover
-                    assert False, 'Unknown return value from turtle.colormode(): ' + str(turtle_obj.colormode())
+                # NOTE: I have checked every combination from 000000 to FFFFFF and there is no 
+                # overlap with six-letter color names like 'yellow'.
+                shortcut_parts[1] = '#' + shortcut_parts[1]
+                # NOTE: In this case, color_arg_is_color_name remains False
             else:
                 # shortcut_parts[1] must be a color name like 'blue'
-                color_arg = shortcut_parts[1]
                 color_arg_is_color_name = True
+            color_arg = shortcut_parts[1]
 
             # Test the color name by actually calling pencolor():
             original_pen_color = turtle_obj.pencolor()
@@ -497,23 +500,15 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                 raise_exception = True  # We don't raise here so we can hide the original TurtleGraphicsError and make the stack trace a bit neater.
             if raise_exception:
                 raise TurtleShortcutException('Syntax error in `' + shortcut + '`: `' + shortcut_parts[1] + '` is not a valid color.')
-            turtle_obj.pencolor(original_pen_color)
+            
+            # NOTE: This code here is to handle an unfixed bug in turtle.py. If the color mode is 1.0 and you set
+            # the color to (1.0, 0.0, 0.0) and then change the color mode to 255, the color will be (255.0, 0.0, 0.0)
+            # but these float values are not a valid setting for a color while in mode 255. So we have to convert them
+            # to integers here.
+            if isinstance(original_pen_color, tuple) and turtle_obj.colormode() == 255:
+                turtle_obj.pencolor(int(original_pen_color[0]), int(original_pen_color[1]), int(original_pen_color[2]))
 
         if not dry_run:
-            if isinstance(color_arg, tuple):
-                temp_switch_to_mode_255 = len(color_arg) == 3 and turtle_obj.colormode() == 1.0 and (color_arg[0] > 1.0 or color_arg[1] > 1.0 or color_arg[2] > 1.0)
-                temp_switch_to_mode_1 = len(color_arg) == 3 and turtle_obj.colormode() == 255 and (0.0 <= color_arg[0] <= 1.0 and 0.0 <= color_arg[1] <= 1.0 and 0.0 <= color_arg[2] <= 1.0)
-                assert not (temp_switch_to_mode_255 and temp_switch_to_mode_1)
-            else:
-                temp_switch_to_mode_255 = False
-                temp_switch_to_mode_1 = False
-
-            if temp_switch_to_mode_255:
-                turtle_obj.colormode(255)
-                color_arg = (int(color_arg[0]), int(color_arg[1]), int(color_arg[2]))
-            elif temp_switch_to_mode_1:
-                turtle_obj.colormode(1.0)
-
             # Return the turtle code, if that was asked:
             if _return_turtle_code:
                 if _sc == 'pc':
@@ -523,19 +518,11 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                 elif _sc == 'bc':
                     func_name_prefix = 'bg'
 
-                if temp_switch_to_mode_255:
-                    turtle_obj.colormode(1.0)
-                    return ('colormode(255)', func_name_prefix + 'color(' + str(color_arg) + ')', 'colormode(1.0)')
-                elif temp_switch_to_mode_1:
-                    turtle_obj.colormode(255)
-                    return ('colormode(1.0)', func_name_prefix + 'color(' + str(color_arg) + ')', 'colormode(255)')
+                if color_arg_is_color_name:
+                    return (func_name_prefix + "color('" + str(color_arg) + "')",)
                 else:
-                    if color_arg_is_color_name:
-                        return (func_name_prefix + "color('" + str(color_arg) + "')",)
-                    else:
-                        return (func_name_prefix + 'color(' + str(color_arg) + ')',)
+                    return (func_name_prefix + 'color(' + str(color_arg) + ')',)
             
-
             # Run the shortcut that has an RGB color argument:
             if _sc == 'pc':
                 turtle_obj.pencolor(color_arg)
@@ -546,11 +533,6 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc  
             count_of_shortcuts_run += 1
-
-            if temp_switch_to_mode_255:
-                turtle_obj.colormode(1.0)
-            elif temp_switch_to_mode_1:
-                turtle_obj.colormode(255)
 
     return count_of_shortcuts_run
 
