@@ -1,6 +1,6 @@
 # TurtleSC
 
-TurtleSC provides a mini-language of shortcut instructions to carry out turtle.py function calls.
+TurtleSC provides a mini-language of shortcut instructions to carry out turtle.py function calls, like `'f 100'` instead of `forward(100)`.
 
 These shortcuts are quicker to type, making them ideal for experimenting from the interactive shell. Turtlesc takes the idea of the existing `fd()` and `rt()` aliases for `forward()` and `right()` to the next level. All shortcuts are run from a string passed to the `turtlesc.sc()` function.
 
@@ -77,15 +77,15 @@ sc('done')
 The `turtlesc` module also provides new `in_radians_mode()` or `in_degrees_mode()` functions that return a Boolean `True` or `False` value depending on which mode the turtle is in. These features are missing in the original `turtle` module.
 
 
-If you want to get the original code for a shortcuts string, pass it to the `get_turtle_code()` function:
+If you want to get the original code for a shortcuts string (which can be helpful to print the shortcuts), pass it to the `psc()` function:
 
 ```python
 >>> from turtlesc import *
->>> get_turtle_code('f 100, r 45, f 100')
-('forward(100)', 'right(45)', 'forward(100)')
+>>> psc('f 100, r 45, f 100')
+'forward(100)\nright(45)\nforward(100)'
 ```
 
-Note that the return value of `get_turtle_code()` is a tuple of strings, all of which lack the `turtle.` prefix in case you want to add your own (either the `turtle` module or a variable containing a `Turtle` object.)
+Note that the return value of `psc()` is a string. If there are multiple shortcuts, they are separated by a newline and all lack the `turtle.` prefix in case you want to add your own (either the `turtle` module or a variable containing a `Turtle` object.)
 
 
 

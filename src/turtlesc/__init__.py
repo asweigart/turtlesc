@@ -135,7 +135,7 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False): # type: () -> int
             count_of_shortcuts_run += _run_shortcut(shortcut, turtle_obj=turtle_obj)
     
     if _return_turtle_code:
-        return turtle_code
+        return '\n'.join(turtle_code)
     else:
         return count_of_shortcuts_run
 
@@ -554,6 +554,6 @@ def in_degrees_mode():
     return not in_radians_mode()
 
 
-def get_turtle_code(*args):
-    """Returns the Python code that would be executed by the sc() function."""
+def psc(*args):
+    """Returns the Python code that would be executed by the sc() function, suitable for printing to the screen."""
     return sc(*args, _return_turtle_code=True)

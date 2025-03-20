@@ -787,111 +787,111 @@ def test_speed():
         tracer(10000, 0)  # Restore the original tracer settings for other tests.
 
         
-def test_get_turtle_code():
-    assert get_turtle_code('f 100') == ('forward(100)',)
-    assert get_turtle_code('b 100') == ('backward(100)',)
-    assert get_turtle_code('l 90') == ('left(90)',)
-    assert get_turtle_code('r 90') == ('right(90)',)
-    assert get_turtle_code('g 100 200') == ('goto(100, 200)',)
-    assert get_turtle_code('sh 90') == ('setheading(90)',)
-    assert get_turtle_code('pu') == ('penup()',)
-    assert get_turtle_code('pd') == ('pendown()',)
-    assert get_turtle_code('ps 10') == ('pensize(10)',)
-    assert get_turtle_code('bf') == ('begin_fill()',)
-    assert get_turtle_code('ef') == ('end_fill()',)
-    assert get_turtle_code('reset') == ('reset()',)
-    assert get_turtle_code('sleep 1') == ('sleep(1)',)
-    assert get_turtle_code('t 100 0') == ('tracer(100, 0)',)
-    assert get_turtle_code('u') == ('update()',)
-    assert get_turtle_code('show') == ('showturtle()',)
-    assert get_turtle_code('hide') == ('hideturtle()',)
-    assert get_turtle_code('dot 10') == ('dot(10)',)
-    assert get_turtle_code('cs 1') == ('clearstamp(1)',)
-    assert get_turtle_code('css') == ('clearstamps()',)
-    assert get_turtle_code('css 1') == ('clearstamps(1)',)
-    assert get_turtle_code('st') == ('stamp()',)
-    assert get_turtle_code('speed 1') == ('speed(1)',)
-    assert get_turtle_code('home') == ('home()',)
-    assert get_turtle_code('x 100') == ('setx(100)',)
-    assert get_turtle_code('y 100') == ('sety(100)',)
-    assert get_turtle_code('setx 100') == ('setx(100)',)
-    assert get_turtle_code('sety 100') == ('sety(100)',)
-    assert get_turtle_code('c') == ('clear()',)
-    assert get_turtle_code('undo') == ('undo()',)
-    assert get_turtle_code('cir 100') == ('circle(100)',)
-    assert get_turtle_code('g 100 200') == ('goto(100, 200)',)
-    assert get_turtle_code('tele 100 200') == ('teleport(100, 200)',)
+def test_psc():
+    assert psc('f 100') == 'forward(100)'
+    assert psc('b 100') == 'backward(100)'
+    assert psc('l 90') == 'left(90)'
+    assert psc('r 90') == 'right(90)'
+    assert psc('g 100 200') == 'goto(100, 200)'
+    assert psc('sh 90') == 'setheading(90)'
+    assert psc('pu') == 'penup()'
+    assert psc('pd') == 'pendown()'
+    assert psc('ps 10') == 'pensize(10)'
+    assert psc('bf') == 'begin_fill()'
+    assert psc('ef') == 'end_fill()'
+    assert psc('reset') == 'reset()'
+    assert psc('sleep 1') == 'sleep(1)'
+    assert psc('t 100 0') == 'tracer(100, 0)'
+    assert psc('u') == 'update()'
+    assert psc('show') == 'showturtle()'
+    assert psc('hide') == 'hideturtle()'
+    assert psc('dot 10') == 'dot(10)'
+    assert psc('cs 1') == 'clearstamp(1)'
+    assert psc('css') == 'clearstamps()'
+    assert psc('css 1') == 'clearstamps(1)'
+    assert psc('st') == 'stamp()'
+    assert psc('speed 1') == 'speed(1)'
+    assert psc('home') == 'home()'
+    assert psc('x 100') == 'setx(100)'
+    assert psc('y 100') == 'sety(100)'
+    assert psc('setx 100') == 'setx(100)'
+    assert psc('sety 100') == 'sety(100)'
+    assert psc('c') == 'clear()'
+    assert psc('undo') == 'undo()'
+    assert psc('cir 100') == 'circle(100)'
+    assert psc('g 100 200') == 'goto(100, 200)'
+    assert psc('tele 100 200') == 'teleport(100, 200)'
 
-    assert get_turtle_code('pc red') == ("pencolor('red')",)
-    assert get_turtle_code('fc red') == ("fillcolor('red')",)
-    assert get_turtle_code('bc red') == ("bgcolor('red')",)
+    assert psc('pc red') == "pencolor('red')"
+    assert psc('fc red') == "fillcolor('red')"
+    assert psc('bc red') == "bgcolor('red')"
 
     colormode(255)
-    assert get_turtle_code('pc red') == ("pencolor('red')",)
-    assert get_turtle_code('pc 255 0 0') == ('pencolor((255, 0, 0))',)
-    assert get_turtle_code('fc 255 0 0') == ('fillcolor((255, 0, 0))',)
-    assert get_turtle_code('bc 255 0 0') == ('bgcolor((255, 0, 0))',)
+    assert psc('pc red') == "pencolor('red')"
+    assert psc('pc 255 0 0') == 'pencolor((255, 0, 0))'
+    assert psc('fc 255 0 0') == 'fillcolor((255, 0, 0))'
+    assert psc('bc 255 0 0') == 'bgcolor((255, 0, 0))'
     
     colormode(1.0)
-    assert get_turtle_code('pc red') == ("pencolor('red')",)
+    assert psc('pc red') == "pencolor('red')"
     with pytest.raises(TurtleShortcutException):
-        get_turtle_code('pc 255 0 0')
+        psc('pc 255 0 0')
     with pytest.raises(TurtleShortcutException):
-        get_turtle_code('fc 255 0 0')
+        psc('fc 255 0 0')
     with pytest.raises(TurtleShortcutException):
-        get_turtle_code('bc 255 0 0')
+        psc('bc 255 0 0')
 
-    assert get_turtle_code('pc 1.0 0.0 0.0') == ('pencolor((1.0, 0.0, 0.0))',)
-    assert get_turtle_code('fc 1.0 0.0 0.0') == ('fillcolor((1.0, 0.0, 0.0))',)
-    assert get_turtle_code('bc 1.0 0.0 0.0') == ('bgcolor((1.0, 0.0, 0.0))',)
+    assert psc('pc 1.0 0.0 0.0') == 'pencolor((1.0, 0.0, 0.0))'
+    assert psc('fc 1.0 0.0 0.0') == 'fillcolor((1.0, 0.0, 0.0))'
+    assert psc('bc 1.0 0.0 0.0') == 'bgcolor((1.0, 0.0, 0.0))'
     
     
     
     degrees()
-    assert get_turtle_code('n 100') == ('setheading(90)', 'forward(100)')
-    assert get_turtle_code('s 100') == ('setheading(270)', 'forward(100)')
-    assert get_turtle_code('e 100') == ('setheading(0)', 'forward(100)')
-    assert get_turtle_code('w 100') == ('setheading(180)', 'forward(100)')
-    assert get_turtle_code('nw 100') == ('setheading(135)', 'forward(100)')
-    assert get_turtle_code('ne 100') == ('setheading(45)', 'forward(100)')
-    assert get_turtle_code('sw 100') == ('setheading(225)', 'forward(100)')
-    assert get_turtle_code('se 100') == ('setheading(315)', 'forward(100)')
-    assert get_turtle_code('north 100') == ('setheading(90)', 'forward(100)')
-    assert get_turtle_code('south 100') == ('setheading(270)', 'forward(100)')
-    assert get_turtle_code('east 100') == ('setheading(0)', 'forward(100)')
-    assert get_turtle_code('west 100') == ('setheading(180)', 'forward(100)')
-    assert get_turtle_code('northwest 100') == ('setheading(135)', 'forward(100)')
-    assert get_turtle_code('northeast 100') == ('setheading(45)', 'forward(100)')
-    assert get_turtle_code('southwest 100') == ('setheading(225)', 'forward(100)')
-    assert get_turtle_code('southeast 100') == ('setheading(315)', 'forward(100)')
-    assert get_turtle_code('N 100') == ('setheading(90)', 'forward(100)')
-    assert get_turtle_code('S 100') == ('setheading(270)', 'forward(100)')
-    assert get_turtle_code('E 100') == ('setheading(0)', 'forward(100)')
-    assert get_turtle_code('W 100') == ('setheading(180)', 'forward(100)')
-    assert get_turtle_code('NW 100') == ('setheading(135)', 'forward(100)')
-    assert get_turtle_code('NE 100') == ('setheading(45)', 'forward(100)')
-    assert get_turtle_code('SW 100') == ('setheading(225)', 'forward(100)')
-    assert get_turtle_code('SE 100') == ('setheading(315)', 'forward(100)')
-    assert get_turtle_code('NORTH 100') == ('setheading(90)', 'forward(100)')
-    assert get_turtle_code('SOUTH 100') == ('setheading(270)', 'forward(100)')
-    assert get_turtle_code('EAST 100') == ('setheading(0)', 'forward(100)')
-    assert get_turtle_code('WEST 100') == ('setheading(180)', 'forward(100)')
-    assert get_turtle_code('NORTHWEST 100') == ('setheading(135)', 'forward(100)')
-    assert get_turtle_code('NORTHEAST 100') == ('setheading(45)', 'forward(100)')
-    assert get_turtle_code('SOUTHWEST 100') == ('setheading(225)', 'forward(100)')
-    assert get_turtle_code('SOUTHEAST 100') == ('setheading(315)', 'forward(100)')
-    assert get_turtle_code('n 100, f 100') == ('setheading(90)', 'forward(100)', 'forward(100)')
-    assert get_turtle_code('n 100, f 100, f 100') == ('setheading(90)', 'forward(100)', 'forward(100)', 'forward(100)')
+    assert psc('n 100') == 'setheading(90)\nforward(100)'
+    assert psc('s 100') == 'setheading(270)\nforward(100)'
+    assert psc('e 100') == 'setheading(0)\nforward(100)'
+    assert psc('w 100') == 'setheading(180)\nforward(100)'
+    assert psc('nw 100') == 'setheading(135)\nforward(100)'
+    assert psc('ne 100') == 'setheading(45)\nforward(100)'
+    assert psc('sw 100') == 'setheading(225)\nforward(100)'
+    assert psc('se 100') == 'setheading(315)\nforward(100)'
+    assert psc('north 100') == 'setheading(90)\nforward(100)'
+    assert psc('south 100') == 'setheading(270)\nforward(100)'
+    assert psc('east 100') == 'setheading(0)\nforward(100)'
+    assert psc('west 100') == 'setheading(180)\nforward(100)'
+    assert psc('northwest 100') == 'setheading(135)\nforward(100)'
+    assert psc('northeast 100') == 'setheading(45)\nforward(100)'
+    assert psc('southwest 100') == 'setheading(225)\nforward(100)'
+    assert psc('southeast 100') == 'setheading(315)\nforward(100)'
+    assert psc('N 100') == 'setheading(90)\nforward(100)'
+    assert psc('S 100') == 'setheading(270)\nforward(100)'
+    assert psc('E 100') == 'setheading(0)\nforward(100)'
+    assert psc('W 100') == 'setheading(180)\nforward(100)'
+    assert psc('NW 100') == 'setheading(135)\nforward(100)'
+    assert psc('NE 100') == 'setheading(45)\nforward(100)'
+    assert psc('SW 100') == 'setheading(225)\nforward(100)'
+    assert psc('SE 100') == 'setheading(315)\nforward(100)'
+    assert psc('NORTH 100') == 'setheading(90)\nforward(100)'
+    assert psc('SOUTH 100') == 'setheading(270)\nforward(100)'
+    assert psc('EAST 100') == 'setheading(0)\nforward(100)'
+    assert psc('WEST 100') == 'setheading(180)\nforward(100)'
+    assert psc('NORTHWEST 100') == 'setheading(135)\nforward(100)'
+    assert psc('NORTHEAST 100') == 'setheading(45)\nforward(100)'
+    assert psc('SOUTHWEST 100') == 'setheading(225)\nforward(100)'
+    assert psc('SOUTHEAST 100') == 'setheading(315)\nforward(100)'
+    assert psc('n 100, f 100') == 'setheading(90)\nforward(100)\nforward(100)'
+    assert psc('n 100, f 100, f 100') == 'setheading(90)\nforward(100)\nforward(100)\nforward(100)'
 
     radians()
-    assert get_turtle_code('n 100') == ('degrees()', 'setheading(90)', 'forward(100)', 'radians()')
-    assert get_turtle_code('s 100') == ('degrees()', 'setheading(270)', 'forward(100)', 'radians()')
-    assert get_turtle_code('e 100') == ('degrees()', 'setheading(0)', 'forward(100)', 'radians()')
-    assert get_turtle_code('w 100') == ('degrees()', 'setheading(180)', 'forward(100)', 'radians()')
-    assert get_turtle_code('nw 100') == ('degrees()', 'setheading(135)', 'forward(100)', 'radians()')
-    assert get_turtle_code('ne 100') == ('degrees()', 'setheading(45)', 'forward(100)', 'radians()')
-    assert get_turtle_code('sw 100') == ('degrees()', 'setheading(225)', 'forward(100)', 'radians()')
-    assert get_turtle_code('se 100') == ('degrees()', 'setheading(315)', 'forward(100)', 'radians()')
+    assert psc('n 100') == 'degrees()\nsetheading(90)\nforward(100)\nradians()'
+    assert psc('s 100') == 'degrees()\nsetheading(270)\nforward(100)\nradians()'
+    assert psc('e 100') == 'degrees()\nsetheading(0)\nforward(100)\nradians()'
+    assert psc('w 100') == 'degrees()\nsetheading(180)\nforward(100)\nradians()'
+    assert psc('nw 100') == 'degrees()\nsetheading(135)\nforward(100)\nradians()'
+    assert psc('ne 100') == 'degrees()\nsetheading(45)\nforward(100)\nradians()'
+    assert psc('sw 100') == 'degrees()\nsetheading(225)\nforward(100)\nradians()'
+    assert psc('se 100') == 'degrees()\nsetheading(315)\nforward(100)\nradians()'
 
     degrees()
 
