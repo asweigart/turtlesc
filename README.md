@@ -129,7 +129,7 @@ Here is a complete reference of supported shortcuts:
 | `sc('se 10')` | [`setheading(315)`](https://docs.python.org/3/library/turtle.html#turtle.setheading) `; ` [`forward(10)`](https://docs.python.org/3/library/turtle.html#turtle.forward)|
 | `sc('done')` | [`done()`](https://docs.python.org/3/library/turtle.html#turtle.done) |
 | `sc('bye')` | [`bye()`](https://docs.python.org/3/library/turtle.html#turtle.bye) |
-| `sc('exitonelick')` | [`exitonclick()`](https://docs.python.org/3/library/turtle.html#turtle.exitonclick) |
+| `sc('exitonclick')` | [`exitonclick()`](https://docs.python.org/3/library/turtle.html#turtle.exitonclick) |
 | `sc('t 100 0')` | [`tracer(100, 0)`](https://docs.python.org/3/library/turtle.html#turtle.tracer) |
 | `sc('u')` | [`update()`](https://docs.python.org/3/library/turtle.html#turtle.update) |
 | `sc('hide')` | [`hide()`](https://docs.python.org/3/library/turtle.html#turtle.hideturtle) |
