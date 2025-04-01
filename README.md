@@ -52,7 +52,7 @@ This code isn't very readable, but it's quick to type. This is useful if you are
 
 Shortcuts in the `sc()` string argument are separated by a comma, with any shortcut arguments separated by spaces. Whitespace is insignificant (you can have one more spaces, and it's the same as a single space). Shortcut names and arguments are case-insensitive: `'f'` and `'F'` work the same. Newlines in the string argument are treated as shortcut-separating commas.
 
-Some less-common shortcuts (such as `'done'`, `'bye'`, and `'exitonclick'`) only have their full function name. All shortcuts have their full function name as a shortcut name: you can use either `'f'` or `'forward'`.
+Some less-common shortcuts (such as `'done'`) only have their full function name. All shortcuts have their full function name as a shortcut name: you can use either `'f'` or `'forward'`.
 
 TurtleSC also adds cardinal movement shortcuts that move the turtle independent of it's current heading (and does not change the heading): `'n 100'`, `'s 100'`, `'e 100'`, `'w 100'` will move the turtle up, down, right, and left 100 steps, respectively. There are also full name shortcuts (`'north'`, `'south'`, `'east'`, `'west'`) and diagnoal shortcuts (`'nw'`, `'ne'`, `'sw'`, `'se'`, `'northwest'`, `'northeast'`, `'southwest'`, `'southeast'`).
 
@@ -77,15 +77,26 @@ sc('done')
 The `turtlesc` module also provides new `in_radians_mode()` or `in_degrees_mode()` functions that return a Boolean `True` or `False` value depending on which mode the turtle is in. These features are missing in the original `turtle` module.
 
 
-If you want to get the original code for a shortcuts string (which can be helpful to print the shortcuts), pass it to the `psc()` function:
+If you want to get the original code for a shortcuts string (which can be helpful to print the shortcuts), pass it to the `scs()` function:
+
+```python
+>>> from turtlesc import *
+>>> scs('f 100, r 45, f 100')
+'forward(100)\nright(45)\nforward(100)'
+```
+
+Note that the return value of `scs()` is a string. If there are multiple shortcuts, they are separated by a newline and all lack the `turtle.` prefix in case you want to add your own (either the `turtle` module or a variable containing a `Turtle` object.)
+
+To easily print out this shortcut string, call `psc()`:
 
 ```python
 >>> from turtlesc import *
 >>> psc('f 100, r 45, f 100')
-'forward(100)\nright(45)\nforward(100)'
+forward(100)
+right(45)
+forward(100)
 ```
 
-Note that the return value of `psc()` is a string. If there are multiple shortcuts, they are separated by a newline and all lack the `turtle.` prefix in case you want to add your own (either the `turtle` module or a variable containing a `Turtle` object.)
 
 
 
@@ -130,6 +141,7 @@ Here is a complete reference of supported shortcuts:
 | `sc('done')` | [`done()`](https://docs.python.org/3/library/turtle.html#turtle.done) |
 | `sc('bye')` | [`bye()`](https://docs.python.org/3/library/turtle.html#turtle.bye) |
 | `sc('exitonelick')` | [`exitonclick()`](https://docs.python.org/3/library/turtle.html#turtle.exitonclick) |
+| `sc('eoc')` | [`exitonclick()`](https://docs.python.org/3/library/turtle.html#turtle.exitonclick) |
 | `sc('t 100 0')` | [`tracer(100, 0)`](https://docs.python.org/3/library/turtle.html#turtle.tracer) |
 | `sc('u')` | [`update()`](https://docs.python.org/3/library/turtle.html#turtle.update) |
 | `sc('hide')` | [`hide()`](https://docs.python.org/3/library/turtle.html#turtle.hideturtle) |
@@ -144,6 +156,8 @@ Here is a complete reference of supported shortcuts:
 | `sc('spd fastest')` | [`speed('fastest')`](https://docs.python.org/3/library/turtle.html#turtle.speed) |
 
 **Notes**
+
+The `sc(skip=True)` keyword argument skips all the shortcuts. Consider this the same as commenting out the `sc()` call.
 
 The `sc('sleep 5')` shortcut exists to call the `time.sleep()` function.
 
