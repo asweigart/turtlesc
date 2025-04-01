@@ -172,6 +172,71 @@ The `'pc'`, `'fc'`, and `'bc'` shortcuts for pen color, fill color, and backgrou
 
 The cardinal directions shortcuts change *both* the heading and position of the turtle.
 
+## scs (shortcut strings) and psc (print shortcuts)
+
+If you pass the shortcut string to `scs()`, instead of carrying out the turtle instructions, it will return a string of the original turtle.py function calls the `sc()` function would make. For example:
+
+```python
+>>> from turtlesc import *
+>>> scs('bf, f 100, r 90, f 100, r 90, ef')
+'begin_fill()\nforward(100)\nright(90)\nforward(100)\nright(90)\nend_fill()\n'
+```
+
+If you'd like to print these out for debugging purposes, you can call `psc()`:
+
+```python
+>>> from turtlesc import *
+>>> psc('bf, f 100, r 90, f 100, r 90, ef')
+begin_fill()
+forward(100)
+right(90)
+forward(100)
+right(90)
+end_fill()
+```
+
+## Comments
+
+You can put comments inside the shortcut string. This is especially helpful when passing multi-line strings to `sc()`. Comments begin with a # hashtag character and go up to the next comma (which marks the start of the next shortcut). For example:
+
+```python
+>>> from turtlesc import *
+>>> sc('''f 100
+          r 100
+          f 100, # This is a comment
+          # Another comment
+          r 100, f 100''')
+```
+
+## Skipping Shortcuts
+
+If you want to temporarily disable a call to `sc()`, you could comment it out like any other Python instruction. However, this is difficult for `sc()` calls that have multi-line string arguments. Instead, add the `skip=True` keyword argument to the call. For example, this instruction does absolutely nothing:
+
+```python
+from turtlesc import *
+sc('''f 100
+      r 100
+      f 100,
+      r 100, f 100''', skip=True)
+```
+
+When you want to add these shortcuts back in, remove the `skip=True` text.
+
+## Recording Turtle Function Calls
+
+If you want to collect the turtle.py function calls for all your `sc()` calls, add a call to `begin_recording()` to the start of your program. When you call `end_recording()` at the end, it returns a list of strings of turtle.py function calls. For example:
+
+```python
+>>> from turtlesc import *
+>>> begin_recording()
+>>> sc('f 100, r 90, f 100')
+3
+>>> sc(' r 90,f 100, r 90, f 100')
+4
+>>> end_recording()
+['f 100', ' r 90', ' f 100', ' r 90', 'f 100', ' r 90', ' f 100']
+```
+
 ## Contribute
 
 If you'd like to contribute, send emails to [al@inventwithpython.com](mailto:al@inventwithpython.com)

@@ -376,8 +376,8 @@ def test_pencolor_fillcolor_bgcolor():
         for color_mode_setting in (255, 1.0):
             colormode(color_mode_setting)
             for color_name in 'black blue brown orange gray grey green purple violet pink yellow white red magenta cyan'.split():
-                assert sc(f'{name} {color_name}') == 1
-                assert function_to_test() == color_name
+                assert sc(f'{name} {color_name}') == 1  # Set the color
+                assert function_to_test() == color_name  # Test that the color was set
         
         colormode(255)
         assert sc(f'{name} #FF0000') == 1
@@ -787,53 +787,201 @@ def test_speed():
         tracer(10000, 0)  # Restore the original tracer settings for other tests.
 
         
-def test_psc():
-    assert psc('f 100') == 'forward(100)'
-    assert psc('b 100') == 'backward(100)'
-    assert psc('l 90') == 'left(90)'
-    assert psc('r 90') == 'right(90)'
-    assert psc('g 100 200') == 'goto(100, 200)'
-    assert psc('sh 90') == 'setheading(90)'
-    assert psc('pu') == 'penup()'
-    assert psc('pd') == 'pendown()'
-    assert psc('ps 10') == 'pensize(10)'
-    assert psc('bf') == 'begin_fill()'
-    assert psc('ef') == 'end_fill()'
-    assert psc('reset') == 'reset()'
-    assert psc('sleep 1') == 'sleep(1)'
-    assert psc('t 100 0') == 'tracer(100, 0)'
-    assert psc('u') == 'update()'
-    assert psc('show') == 'showturtle()'
-    assert psc('hide') == 'hideturtle()'
-    assert psc('dot 10') == 'dot(10)'
-    assert psc('cs 1') == 'clearstamp(1)'
-    assert psc('css') == 'clearstamps()'
-    assert psc('css 1') == 'clearstamps(1)'
-    assert psc('st') == 'stamp()'
-    assert psc('speed 1') == 'speed(1)'
-    assert psc('home') == 'home()'
-    assert psc('x 100') == 'setx(100)'
-    assert psc('y 100') == 'sety(100)'
-    assert psc('setx 100') == 'setx(100)'
-    assert psc('sety 100') == 'sety(100)'
-    assert psc('c') == 'clear()'
-    assert psc('undo') == 'undo()'
-    assert psc('cir 100') == 'circle(100)'
-    assert psc('g 100 200') == 'goto(100, 200)'
-    assert psc('tele 100 200') == 'teleport(100, 200)'
+def test_scs():
+    assert scs('f 100') == 'forward(100)\n'
+    assert scs('b 100') == 'backward(100)\n'
+    assert scs('l 90') == 'left(90)\n'
+    assert scs('r 90') == 'right(90)\n'
+    assert scs('g 100 200') == 'goto(100, 200)\n'
+    assert scs('sh 90') == 'setheading(90)\n'
+    assert scs('pu') == 'penup()\n'
+    assert scs('pd') == 'pendown()\n'
+    assert scs('ps 10') == 'pensize(10)\n'
+    assert scs('bf') == 'begin_fill()\n'
+    assert scs('ef') == 'end_fill()\n'
+    assert scs('reset') == 'reset()\n'
+    assert scs('sleep 1') == 'sleep(1)\n'
+    assert scs('t 100 0') == 'tracer(100, 0)\n'
+    assert scs('u') == 'update()\n'
+    assert scs('show') == 'showturtle()\n'
+    assert scs('hide') == 'hideturtle()\n'
+    assert scs('dot 10') == 'dot(10)\n'
+    assert scs('cs 1') == 'clearstamp(1)\n'
+    assert scs('css') == 'clearstamps()\n'
+    assert scs('css 1') == 'clearstamps(1)\n'
+    assert scs('st') == 'stamp()\n'
+    assert scs('speed 1') == 'speed(1)\n'
+    assert scs('home') == 'home()\n'
+    assert scs('x 100') == 'setx(100)\n'
+    assert scs('y 100') == 'sety(100)\n'
+    assert scs('setx 100') == 'setx(100)\n'
+    assert scs('sety 100') == 'sety(100)\n'
+    assert scs('c') == 'clear()\n'
+    assert scs('undo') == 'undo()\n'
+    assert scs('cir 100') == 'circle(100)\n'
+    assert scs('g 100 200') == 'goto(100, 200)\n'
+    assert scs('tele 100 200') == 'teleport(100, 200)\n'
 
-    assert psc('pc red') == "pencolor('red')"
-    assert psc('fc red') == "fillcolor('red')"
-    assert psc('bc red') == "bgcolor('red')"
+    assert scs('pc red') == "pencolor('red')\n"
+    assert scs('fc red') == "fillcolor('red')\n"
+    assert scs('bc red') == "bgcolor('red')\n"
 
     colormode(255)
-    assert psc('pc red') == "pencolor('red')"
-    assert psc('pc 255 0 0') == 'pencolor((255, 0, 0))'
-    assert psc('fc 255 0 0') == 'fillcolor((255, 0, 0))'
-    assert psc('bc 255 0 0') == 'bgcolor((255, 0, 0))'
+    assert scs('pc red') == "pencolor('red')\n"
+    assert scs('pc 255 0 0') == 'pencolor((255, 0, 0))\n'
+    assert scs('fc 255 0 0') == 'fillcolor((255, 0, 0))\n'
+    assert scs('bc 255 0 0') == 'bgcolor((255, 0, 0))\n'
     
     colormode(1.0)
-    assert psc('pc red') == "pencolor('red')"
+    assert scs('pc red') == "pencolor('red')\n"
+    with pytest.raises(TurtleShortcutException):
+        scs('pc 255 0 0')
+    with pytest.raises(TurtleShortcutException):
+        scs('fc 255 0 0')
+    with pytest.raises(TurtleShortcutException):
+        scs('bc 255 0 0')
+
+    assert scs('pc 1.0 0.0 0.0') == 'pencolor((1.0, 0.0, 0.0))\n'
+    assert scs('fc 1.0 0.0 0.0') == 'fillcolor((1.0, 0.0, 0.0))\n'
+    assert scs('bc 1.0 0.0 0.0') == 'bgcolor((1.0, 0.0, 0.0))\n'
+    
+    degrees()
+    assert scs('n 100') == 'setheading(90)\nforward(100)\n'
+    assert scs('s 100') == 'setheading(270)\nforward(100)\n'
+    assert scs('e 100') == 'setheading(0)\nforward(100)\n'
+    assert scs('w 100') == 'setheading(180)\nforward(100)\n'
+    assert scs('nw 100') == 'setheading(135)\nforward(100)\n'
+    assert scs('ne 100') == 'setheading(45)\nforward(100)\n'
+    assert scs('sw 100') == 'setheading(225)\nforward(100)\n'
+    assert scs('se 100') == 'setheading(315)\nforward(100)\n'
+    assert scs('north 100') == 'setheading(90)\nforward(100)\n'
+    assert scs('south 100') == 'setheading(270)\nforward(100)\n'
+    assert scs('east 100') == 'setheading(0)\nforward(100)\n'
+    assert scs('west 100') == 'setheading(180)\nforward(100)\n'
+    assert scs('northwest 100') == 'setheading(135)\nforward(100)\n'
+    assert scs('northeast 100') == 'setheading(45)\nforward(100)\n'
+    assert scs('southwest 100') == 'setheading(225)\nforward(100)\n'
+    assert scs('southeast 100') == 'setheading(315)\nforward(100)\n'
+    assert scs('N 100') == 'setheading(90)\nforward(100)\n'
+    assert scs('S 100') == 'setheading(270)\nforward(100)\n'
+    assert scs('E 100') == 'setheading(0)\nforward(100)\n'
+    assert scs('W 100') == 'setheading(180)\nforward(100)\n'
+    assert scs('NW 100') == 'setheading(135)\nforward(100)\n'
+    assert scs('NE 100') == 'setheading(45)\nforward(100)\n'
+    assert scs('SW 100') == 'setheading(225)\nforward(100)\n'
+    assert scs('SE 100') == 'setheading(315)\nforward(100)\n'
+    assert scs('NORTH 100') == 'setheading(90)\nforward(100)\n'
+    assert scs('SOUTH 100') == 'setheading(270)\nforward(100)\n'
+    assert scs('EAST 100') == 'setheading(0)\nforward(100)\n'
+    assert scs('WEST 100') == 'setheading(180)\nforward(100)\n'
+    assert scs('NORTHWEST 100') == 'setheading(135)\nforward(100)\n'
+    assert scs('NORTHEAST 100') == 'setheading(45)\nforward(100)\n'
+    assert scs('SOUTHWEST 100') == 'setheading(225)\nforward(100)\n'
+    assert scs('SOUTHEAST 100') == 'setheading(315)\nforward(100)\n'
+    assert scs('n 100, f 100') == 'setheading(90)\nforward(100)\nforward(100)\n'
+    assert scs('n 100, f 100, f 100') == 'setheading(90)\nforward(100)\nforward(100)\nforward(100)\n'
+
+    radians()
+    assert scs('n 100') == 'degrees()\nsetheading(90)\nforward(100)\nradians()\n'
+    assert scs('s 100') == 'degrees()\nsetheading(270)\nforward(100)\nradians()\n'
+    assert scs('e 100') == 'degrees()\nsetheading(0)\nforward(100)\nradians()\n'
+    assert scs('w 100') == 'degrees()\nsetheading(180)\nforward(100)\nradians()\n'
+    assert scs('nw 100') == 'degrees()\nsetheading(135)\nforward(100)\nradians()\n'
+    assert scs('ne 100') == 'degrees()\nsetheading(45)\nforward(100)\nradians()\n'
+    assert scs('sw 100') == 'degrees()\nsetheading(225)\nforward(100)\nradians()\n'
+    assert scs('se 100') == 'degrees()\nsetheading(315)\nforward(100)\nradians()\n'
+
+    degrees()
+
+
+def test_psc(capsys):
+    psc('f 100')
+    assert capsys.readouterr().out == 'forward(100)\n'
+    psc('b 100')
+    assert capsys.readouterr().out == 'backward(100)\n'
+    psc('l 90')
+    assert capsys.readouterr().out == 'left(90)\n'
+    psc('r 90')
+    assert capsys.readouterr().out == 'right(90)\n'
+    psc('g 100 200')
+    assert capsys.readouterr().out == 'goto(100, 200)\n'
+    psc('sh 90')
+    assert capsys.readouterr().out == 'setheading(90)\n'
+    psc('pu')
+    assert capsys.readouterr().out == 'penup()\n'
+    psc('pd')
+    assert capsys.readouterr().out == 'pendown()\n'
+    psc('ps 10')
+    assert capsys.readouterr().out == 'pensize(10)\n'
+    psc('bf')
+    assert capsys.readouterr().out == 'begin_fill()\n'
+    psc('ef')
+    assert capsys.readouterr().out == 'end_fill()\n'
+    psc('reset')
+    assert capsys.readouterr().out == 'reset()\n'
+    psc('sleep 1')
+    assert capsys.readouterr().out == 'sleep(1)\n'
+    psc('t 100 0')
+    assert capsys.readouterr().out == 'tracer(100, 0)\n'
+    psc('u')
+    assert capsys.readouterr().out == 'update()\n'
+    psc('show')
+    assert capsys.readouterr().out == 'showturtle()\n'
+    psc('hide')
+    assert capsys.readouterr().out == 'hideturtle()\n'
+    psc('dot 10')
+    assert capsys.readouterr().out == 'dot(10)\n'
+    psc('cs 1')
+    assert capsys.readouterr().out == 'clearstamp(1)\n'
+    psc('css')
+    assert capsys.readouterr().out == 'clearstamps()\n'
+    psc('css 1')
+    assert capsys.readouterr().out == 'clearstamps(1)\n'
+    psc('st')
+    assert capsys.readouterr().out == 'stamp()\n'
+    psc('speed 1')
+    assert capsys.readouterr().out == 'speed(1)\n'
+    psc('home')
+    assert capsys.readouterr().out == 'home()\n'
+    psc('x 100')
+    assert capsys.readouterr().out == 'setx(100)\n'
+    psc('y 100')
+    assert capsys.readouterr().out == 'sety(100)\n'
+    psc('setx 100')
+    assert capsys.readouterr().out == 'setx(100)\n'
+    psc('sety 100')
+    assert capsys.readouterr().out == 'sety(100)\n'
+    psc('c')
+    assert capsys.readouterr().out == 'clear()\n'
+    psc('undo')
+    assert capsys.readouterr().out == 'undo()\n'
+    psc('cir 100')
+    assert capsys.readouterr().out == 'circle(100)\n'
+    psc('g 100 200')
+    assert capsys.readouterr().out == 'goto(100, 200)\n'
+    psc('tele 100 200')
+    assert capsys.readouterr().out == 'teleport(100, 200)\n'
+
+    psc('pc red')
+    assert capsys.readouterr().out == "pencolor('red')\n"
+    psc('fc red')
+    assert capsys.readouterr().out == "fillcolor('red')\n"
+    psc('bc red')
+    assert capsys.readouterr().out == "bgcolor('red')\n"
+
+    colormode(255)
+    psc('pc red')
+    assert capsys.readouterr().out == "pencolor('red')\n"
+    psc('pc 255 0 0')
+    assert capsys.readouterr().out == 'pencolor((255, 0, 0))\n'
+    psc('fc 255 0 0')
+    assert capsys.readouterr().out == 'fillcolor((255, 0, 0))\n'
+    psc('bc 255 0 0')
+    assert capsys.readouterr().out == 'bgcolor((255, 0, 0))\n'
+    
+    colormode(1.0)
+    psc('pc red')
+    assert capsys.readouterr().out == "pencolor('red')\n"
     with pytest.raises(TurtleShortcutException):
         psc('pc 255 0 0')
     with pytest.raises(TurtleShortcutException):
@@ -841,64 +989,131 @@ def test_psc():
     with pytest.raises(TurtleShortcutException):
         psc('bc 255 0 0')
 
-    assert psc('pc 1.0 0.0 0.0') == 'pencolor((1.0, 0.0, 0.0))'
-    assert psc('fc 1.0 0.0 0.0') == 'fillcolor((1.0, 0.0, 0.0))'
-    assert psc('bc 1.0 0.0 0.0') == 'bgcolor((1.0, 0.0, 0.0))'
-    
-    
+    psc('pc 1.0 0.0 0.0')
+    assert capsys.readouterr().out == 'pencolor((1.0, 0.0, 0.0))\n'
+    psc('fc 1.0 0.0 0.0')
+    assert capsys.readouterr().out == 'fillcolor((1.0, 0.0, 0.0))\n'
+    psc('bc 1.0 0.0 0.0')
+    assert capsys.readouterr().out == 'bgcolor((1.0, 0.0, 0.0))\n'
     
     degrees()
-    assert psc('n 100') == 'setheading(90)\nforward(100)'
-    assert psc('s 100') == 'setheading(270)\nforward(100)'
-    assert psc('e 100') == 'setheading(0)\nforward(100)'
-    assert psc('w 100') == 'setheading(180)\nforward(100)'
-    assert psc('nw 100') == 'setheading(135)\nforward(100)'
-    assert psc('ne 100') == 'setheading(45)\nforward(100)'
-    assert psc('sw 100') == 'setheading(225)\nforward(100)'
-    assert psc('se 100') == 'setheading(315)\nforward(100)'
-    assert psc('north 100') == 'setheading(90)\nforward(100)'
-    assert psc('south 100') == 'setheading(270)\nforward(100)'
-    assert psc('east 100') == 'setheading(0)\nforward(100)'
-    assert psc('west 100') == 'setheading(180)\nforward(100)'
-    assert psc('northwest 100') == 'setheading(135)\nforward(100)'
-    assert psc('northeast 100') == 'setheading(45)\nforward(100)'
-    assert psc('southwest 100') == 'setheading(225)\nforward(100)'
-    assert psc('southeast 100') == 'setheading(315)\nforward(100)'
-    assert psc('N 100') == 'setheading(90)\nforward(100)'
-    assert psc('S 100') == 'setheading(270)\nforward(100)'
-    assert psc('E 100') == 'setheading(0)\nforward(100)'
-    assert psc('W 100') == 'setheading(180)\nforward(100)'
-    assert psc('NW 100') == 'setheading(135)\nforward(100)'
-    assert psc('NE 100') == 'setheading(45)\nforward(100)'
-    assert psc('SW 100') == 'setheading(225)\nforward(100)'
-    assert psc('SE 100') == 'setheading(315)\nforward(100)'
-    assert psc('NORTH 100') == 'setheading(90)\nforward(100)'
-    assert psc('SOUTH 100') == 'setheading(270)\nforward(100)'
-    assert psc('EAST 100') == 'setheading(0)\nforward(100)'
-    assert psc('WEST 100') == 'setheading(180)\nforward(100)'
-    assert psc('NORTHWEST 100') == 'setheading(135)\nforward(100)'
-    assert psc('NORTHEAST 100') == 'setheading(45)\nforward(100)'
-    assert psc('SOUTHWEST 100') == 'setheading(225)\nforward(100)'
-    assert psc('SOUTHEAST 100') == 'setheading(315)\nforward(100)'
-    assert psc('n 100, f 100') == 'setheading(90)\nforward(100)\nforward(100)'
-    assert psc('n 100, f 100, f 100') == 'setheading(90)\nforward(100)\nforward(100)\nforward(100)'
+    psc('n 100')
+    assert capsys.readouterr().out == 'setheading(90)\nforward(100)\n'
+    psc('s 100')
+    assert capsys.readouterr().out == 'setheading(270)\nforward(100)\n'
+    psc('e 100')
+    assert capsys.readouterr().out == 'setheading(0)\nforward(100)\n'
+    psc('w 100')
+    assert capsys.readouterr().out == 'setheading(180)\nforward(100)\n'
+    psc('nw 100')
+    assert capsys.readouterr().out == 'setheading(135)\nforward(100)\n'
+    psc('ne 100')
+    assert capsys.readouterr().out == 'setheading(45)\nforward(100)\n'
+    psc('sw 100')
+    assert capsys.readouterr().out == 'setheading(225)\nforward(100)\n'
+    psc('se 100')
+    assert capsys.readouterr().out == 'setheading(315)\nforward(100)\n'
+    psc('north 100')
+    assert capsys.readouterr().out == 'setheading(90)\nforward(100)\n'
+    psc('south 100')
+    assert capsys.readouterr().out == 'setheading(270)\nforward(100)\n'
+    psc('east 100')
+    assert capsys.readouterr().out == 'setheading(0)\nforward(100)\n'
+    psc('west 100')
+    assert capsys.readouterr().out == 'setheading(180)\nforward(100)\n'
+    psc('northwest 100')
+    assert capsys.readouterr().out == 'setheading(135)\nforward(100)\n'
+    psc('northeast 100')
+    assert capsys.readouterr().out == 'setheading(45)\nforward(100)\n'
+    psc('southwest 100')
+    assert capsys.readouterr().out == 'setheading(225)\nforward(100)\n'
+    psc('southeast 100')
+    assert capsys.readouterr().out == 'setheading(315)\nforward(100)\n'
+    psc('N 100')
+    assert capsys.readouterr().out == 'setheading(90)\nforward(100)\n'
+    psc('S 100')
+    assert capsys.readouterr().out == 'setheading(270)\nforward(100)\n'
+    psc('E 100')
+    assert capsys.readouterr().out == 'setheading(0)\nforward(100)\n'
+    psc('W 100')
+    assert capsys.readouterr().out == 'setheading(180)\nforward(100)\n'
+    psc('NW 100')
+    assert capsys.readouterr().out == 'setheading(135)\nforward(100)\n'
+    psc('NE 100')
+    assert capsys.readouterr().out == 'setheading(45)\nforward(100)\n'
+    psc('SW 100')
+    assert capsys.readouterr().out == 'setheading(225)\nforward(100)\n'
+    psc('SE 100')
+    assert capsys.readouterr().out == 'setheading(315)\nforward(100)\n'
+    psc('NORTH 100')
+    assert capsys.readouterr().out == 'setheading(90)\nforward(100)\n'
+    psc('SOUTH 100')
+    assert capsys.readouterr().out == 'setheading(270)\nforward(100)\n'
+    psc('EAST 100')
+    assert capsys.readouterr().out == 'setheading(0)\nforward(100)\n'
+    psc('WEST 100')
+    assert capsys.readouterr().out == 'setheading(180)\nforward(100)\n'
+    psc('NORTHWEST 100')
+    assert capsys.readouterr().out == 'setheading(135)\nforward(100)\n'
+    psc('NORTHEAST 100')
+    assert capsys.readouterr().out == 'setheading(45)\nforward(100)\n'
+    psc('SOUTHWEST 100')
+    assert capsys.readouterr().out == 'setheading(225)\nforward(100)\n'
+    psc('SOUTHEAST 100')
+    assert capsys.readouterr().out == 'setheading(315)\nforward(100)\n'
+    psc('n 100, f 100')
+    assert capsys.readouterr().out == 'setheading(90)\nforward(100)\nforward(100)\n'
+    psc('n 100, f 100, f 100')
+    assert capsys.readouterr().out == 'setheading(90)\nforward(100)\nforward(100)\nforward(100)\n'
 
     radians()
-    assert psc('n 100') == 'degrees()\nsetheading(90)\nforward(100)\nradians()'
-    assert psc('s 100') == 'degrees()\nsetheading(270)\nforward(100)\nradians()'
-    assert psc('e 100') == 'degrees()\nsetheading(0)\nforward(100)\nradians()'
-    assert psc('w 100') == 'degrees()\nsetheading(180)\nforward(100)\nradians()'
-    assert psc('nw 100') == 'degrees()\nsetheading(135)\nforward(100)\nradians()'
-    assert psc('ne 100') == 'degrees()\nsetheading(45)\nforward(100)\nradians()'
-    assert psc('sw 100') == 'degrees()\nsetheading(225)\nforward(100)\nradians()'
-    assert psc('se 100') == 'degrees()\nsetheading(315)\nforward(100)\nradians()'
+    psc('n 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(90)\nforward(100)\nradians()\n'
+    psc('s 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(270)\nforward(100)\nradians()\n'
+    psc('e 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(0)\nforward(100)\nradians()\n'
+    psc('w 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(180)\nforward(100)\nradians()\n'
+    psc('nw 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(135)\nforward(100)\nradians()\n'
+    psc('ne 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(45)\nforward(100)\nradians()\n'
+    psc('sw 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(225)\nforward(100)\nradians()\n'
+    psc('se 100')
+    assert capsys.readouterr().out == 'degrees()\nsetheading(315)\nforward(100)\nradians()\n'
 
     degrees()
 
 
+def test_skip(capsys):
+    turtle.home()
+    assert sc('f 100', skip=True) == 0
+    assert turtle.pos() == (0, 0)
+    assert sc('f 100', skip=True, _return_turtle_code=True) == ()
+    
+
+def test_comment():
+    assert sc('# ignore 123 abc') == 0
+    assert sc('f 100, # ignore this') == 1
+    assert sc('f 100, # ignore this, b 100') == 2
+    assert sc('f 100, # ignore this, b 100, # ignore this') == 2
+    assert sc('f 100, # ignore this, b 100, # ignore this, f 100') == 3
+
+    assert scs('# ignore this') == '# ignore this\n'
+    assert scs('f 100, # ignore this') == 'forward(100)\n# ignore this\n'
+    assert scs('f 100,          # ignore this') == 'forward(100)\n# ignore this\n'
 
 
-
+def test_recording():
+    begin_recording()
+    assert RECORDED_SHORTCUTS == []
+    assert sc('f 100, l 90, f 100, l 90, # foobar, f 100') == 5
+    assert end_recording() == ['f 100', ' l 90', ' f 100', ' l 90', ' # foobar', ' f 100']
+    begin_recording()
+    assert RECORDED_SHORTCUTS == []
+    
 
 
 # EXAMPLE PROGRAMS:

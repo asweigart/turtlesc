@@ -1,12 +1,10 @@
 import turtle, time, re
 
-# SC TODO - blank instructions from ,, instructions don't count
-# SC TODO - allow comments? conflict with #RGB?
 # SC TODO - some kind of live replay sort of thing?
 # SC TODO - some kind of chart maker that records the screen after every movement?
 
 
-ALL_SHORTCUTS = 'f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
+ALL_SHORTCUTS = '# f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
     'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
     'circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update' + \
     'tracer hide show dot clearstamp clearstamps degrees radians speed'
@@ -19,6 +17,9 @@ _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
         'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't',
         'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd', 'exitonclick': 'eoc'}
+
+RECORDED_SHORTCUTS = []
+_NOW_RECORDING = False
 
 class TurtleShortcutException(Exception):
     pass
@@ -143,12 +144,15 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False, skip=False): # type: (
             count_of_shortcuts_run += _run_shortcut(shortcut, turtle_obj=turtle_obj)
     
     if _return_turtle_code:
-        return '\n'.join(turtle_code)
+        # Return a multi-line string of Python code calling turtle functions:
+        return '\n'.join(turtle_code) + '\n'
     else:
         return count_of_shortcuts_run
 
 
 def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=False):
+    '''Runs a single shortcut'''
+
     if turtle_obj is None:
         turtle_obj = turtle  # Use the main turtle given by the module.
 
@@ -171,9 +175,18 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
     count_of_shortcuts_run = 0
     
 
+    # SHORTCUTS THAT TAKE A VARIABLE NUMBER OF ARGUMENTS:
+    if _sc in ('#',):
+        if _sc == '#':
+            if _return_turtle_code:
+                return (shortcut.lstrip(),)  # Return the comment as is (but with leading whitespace removed).
+            pass  # Comments do nothing.
+        else:  # pragma: no cover
+            assert False, 'Unhandled shortcut: ' + _sc
+
 
     # SHORTCUTS THAT TAKE A SINGLE NUMERIC ARGUMENT:
-    if _sc in ('f', 'b', 'r', 'l', 'x', 'y', 'ps', 'sh', 'cir', 'sleep', 'n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se', 'dot', 'cs', 'spd'):
+    elif _sc in ('f', 'b', 'r', 'l', 'x', 'y', 'ps', 'sh', 'cir', 'sleep', 'n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se', 'dot', 'cs', 'spd'):
         if len(shortcut_parts) < 2:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Missing the required numeric argument.')
         if len(shortcut_parts) > 2:
@@ -515,10 +528,10 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             # the color to (1.0, 0.0, 0.0) and then change the color mode to 255, the color will be (255.0, 0.0, 0.0)
             # but these float values are not a valid setting for a color while in mode 255. So we have to convert them
             # to integers here.
-            # NEW NOTE: Actually, I don't know why the above would happen. Comment this out for now.
-            #if isinstance(original_pen_color, tuple) and turtle_obj.colormode() == 255:
-            #    turtle_obj.pencolor(int(original_pen_color[0]), int(original_pen_color[1]), int(original_pen_color[2]))
-            turtle_obj.pencolor(original_pen_color)
+            if isinstance(original_pen_color, tuple) and turtle_obj.colormode() == 255:
+                turtle_obj.pencolor(int(original_pen_color[0]), int(original_pen_color[1]), int(original_pen_color[2]))
+            else:
+                turtle_obj.pencolor(original_pen_color)
 
         if not dry_run:
             # Return the turtle code, if that was asked:
@@ -545,6 +558,10 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             else:  # pragma: no cover
                 assert False, 'Unhandled shortcut: ' + _sc  
             count_of_shortcuts_run += 1
+
+    # If begin_recording() has been called, log the shortcut.
+    if _NOW_RECORDING and not dry_run:
+        RECORDED_SHORTCUTS.append(shortcut)
 
     return count_of_shortcuts_run
 
@@ -573,9 +590,19 @@ def scs(*args):
 
 def psc(*args):
     """Prints the Python code that would be executed by the sc() function."""
-    print(sc(*args, _return_turtle_code=True))
 
-def status(t=None):
-    if t is None:
-        t = turtle
-    print(f'X: {t.xcor()} Y: {t.ycor()} H: {t.heading()}')
+    # end='' because sc() already adds a newline to the last line.
+    print(sc(*args, _return_turtle_code=True), end='')
+
+
+def begin_recording(shortcut_list=None):
+    global RECORDED_SHORTCUTS, _NOW_RECORDING
+    RECORDED_SHORTCUTS = []
+
+    _NOW_RECORDING = True
+    
+def end_recording():
+    global RECORDED_SHORTCUTS, _NOW_RECORDING
+
+    _NOW_RECORDING = False
+    return RECORDED_SHORTCUTS
