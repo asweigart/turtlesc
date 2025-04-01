@@ -1,6 +1,12 @@
 import turtle, time, re
 
-ALL_SHORTCUTS = 'f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd' + \
+# SC TODO - blank instructions from ,, instructions don't count
+# SC TODO - allow comments? conflict with #RGB?
+# SC TODO - some kind of live replay sort of thing?
+# SC TODO - some kind of chart maker that records the screen after every movement?
+
+
+ALL_SHORTCUTS = 'f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
     'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
     'circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update' + \
     'tracer hide show dot clearstamp clearstamps degrees radians speed'
@@ -12,12 +18,12 @@ _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left
         'pensize': 'ps', 'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir', 
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
         'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't',
-        'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd'}
+        'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd', 'exitonclick': 'eoc'}
 
 class TurtleShortcutException(Exception):
     pass
 
-def sc(*args, turtle_obj=None, _return_turtle_code=False): # type: () -> int
+def sc(*args, turtle_obj=None, _return_turtle_code=False, skip=False): # type: () -> int
     """TODO
     """
 
@@ -106,10 +112,12 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False): # type: () -> int
     Whitespace is insignificant. '   f     100   ' is the same as 'f 100'
     """
 
-    """
+    if skip:
+        if _return_turtle_code:
+            return ()
+        else:
+            return 0
 
-    
-    """
     # Join multiple arg strings into one, separated by commas:
     shortcuts = ','.join(args)
 
@@ -147,7 +155,10 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
     # Clean up shortcut name from "  FOrWARD " to "f", for example.
     shortcut_parts = shortcut.strip().split()
     if len(shortcut_parts) == 0:
-        return 0
+        if _return_turtle_code:
+            return ('',)
+        else:
+            return 0  # Return 0 because blank strings have zero shortcuts.
     _sc = shortcut_parts[0].lower()
     _sc = _MAP_FULL_TO_SHORT_NAMES.get(_sc, _sc)
 
@@ -359,7 +370,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
 
 
     # SHORTCUTS THAT TAKE EXACTLY ZERO ARGUMENTS:
-    elif _sc in ('h', 'c', 'st', 'pd', 'pu', 'undo', 'bf', 'ef', 'reset', 'bye', 'done', 'exitonclick', 'u', 'show', 'hide'):
+    elif _sc in ('h', 'c', 'st', 'pd', 'pu', 'undo', 'bf', 'ef', 'reset', 'bye', 'done', 'eoc', 'u', 'show', 'hide'):
         if len(shortcut_parts) > 1:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: This shortcut does not have arguments.')
 
@@ -409,7 +420,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                 if _return_turtle_code:
                     return ('done()',)
                 turtle_obj.done()
-            elif _sc == 'exitonclick':  # pragma: no cover
+            elif _sc == 'eoc':  # pragma: no cover
                 if _return_turtle_code:
                     return ('exitonclick()',)
                 turtle_obj.exitonclick()
@@ -504,8 +515,10 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             # the color to (1.0, 0.0, 0.0) and then change the color mode to 255, the color will be (255.0, 0.0, 0.0)
             # but these float values are not a valid setting for a color while in mode 255. So we have to convert them
             # to integers here.
-            if isinstance(original_pen_color, tuple) and turtle_obj.colormode() == 255:
-                turtle_obj.pencolor(int(original_pen_color[0]), int(original_pen_color[1]), int(original_pen_color[2]))
+            # NEW NOTE: Actually, I don't know why the above would happen. Comment this out for now.
+            #if isinstance(original_pen_color, tuple) and turtle_obj.colormode() == 255:
+            #    turtle_obj.pencolor(int(original_pen_color[0]), int(original_pen_color[1]), int(original_pen_color[2]))
+            turtle_obj.pencolor(original_pen_color)
 
         if not dry_run:
             # Return the turtle code, if that was asked:
@@ -554,6 +567,15 @@ def in_degrees_mode():
     return not in_radians_mode()
 
 
-def psc(*args):
-    """Returns the Python code that would be executed by the sc() function, suitable for printing to the screen."""
+def scs(*args):
+    """Returns the shortcut string of Python code that would be executed by the sc() function, suitable for printing to the screen."""
     return sc(*args, _return_turtle_code=True)
+
+def psc(*args):
+    """Prints the Python code that would be executed by the sc() function."""
+    print(sc(*args, _return_turtle_code=True))
+
+def status(t=None):
+    if t is None:
+        t = turtle
+    print(f'X: {t.xcor()} Y: {t.ycor()} H: {t.heading()}')
