@@ -154,6 +154,7 @@ Here is a complete reference of supported shortcuts:
 | `sc('radians')` | [`radians()`](https://docs.python.org/3/library/turtle.html#turtle.radians) |
 | `sc('spd 5')` | [`speed(5)`](https://docs.python.org/3/library/turtle.html#turtle.speed) |
 | `sc('spd fastest')` | [`speed('fastest')`](https://docs.python.org/3/library/turtle.html#turtle.speed) |
+| `sc('# this is a comment')` | `# this is a comment` |
 
 **Notes**
 

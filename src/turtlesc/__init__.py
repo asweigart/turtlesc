@@ -3,6 +3,7 @@ import turtle, time, re
 # SC TODO - some kind of live replay sort of thing?
 # SC TODO - some kind of chart maker that records the screen after every movement?
 
+HALF_SQRT_THREE = 0.8660254037844386
 
 ALL_SHORTCUTS = '# f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
     'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
@@ -17,6 +18,9 @@ _MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
         'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't',
         'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd', 'exitonclick': 'eoc'}
+
+_LOWER_KEYS_TO_TKINTER_KEY_NAMES = {'left': 'Left', 'right': 'Right', 'up': 'Up', 'down': 'Down', 'pgdn': 'Next', 'pgup': 'Prior', 'home': 'Home', 'end': 'End'}
+
 
 RECORDED_SHORTCUTS = []
 _NOW_RECORDING = False
@@ -606,3 +610,62 @@ def end_recording():
 
     _NOW_RECORDING = False
     return RECORDED_SHORTCUTS
+
+def set_key(key, shortcuts):
+    turtle.onkey(lambda: sc(shortcuts), key)
+    turtle.listen()
+
+def preset_cardinal(length=20):
+    turtle.tracer(1, 0)
+    set_key('w', 'n ' + str(length))
+    set_key('s', 's ' + str(length))
+    set_key('a', 'w ' + str(length))
+    set_key('d', 'e ' + str(length))
+    set_key('q', 'nw ' + str(length))
+    set_key('e', 'ne ' + str(length))
+    set_key('z', 'sw ' + str(length))
+    set_key('c', 'se ' + str(length))
+
+    set_key('o', 'pu')
+    set_key('l', 'pd')
+
+    set_key('u', 'undo')
+    set_key('h', 'home, clear')
+
+def preset_turn(length=20, turn=45):
+    turtle.tracer(1, 0)
+    set_key('w', 'f ' + str(length))
+    set_key('s', 'b ' + str(length))
+    set_key('a', 'l ' + str(turn))
+    set_key('d', 'r ' + str(turn))
+
+    set_key('o', 'pu')
+    set_key('l', 'pd')
+
+    set_key('u', 'undo')
+    set_key('h', 'home, clear')
+    
+def preset_isometric(length=20):
+    turtle.tracer(1, 0)
+    set_key('w', 'n ' + str(length * HALF_SQRT_THREE))
+    set_key('s', 's ' + str(length * HALF_SQRT_THREE))
+    #set_key('a', 'w ' + str(length * HALF_SQRT_THREE))
+    #set_key('d', 'e ' + str(length * HALF_SQRT_THREE))
+    set_key('q', 'sh 150, f ' + str(length))
+    set_key('e', 'sh 30, f ' + str(length))
+    set_key('a', 'sh 210, f ' + str(length))
+    set_key('d', 'sh 330, f ' + str(length))
+
+    set_key('o', 'pu')
+    set_key('l', 'pd')
+
+    set_key('u', 'undo')
+    set_key('h', 'home, clear')
+
+
+
+def sketch():
+    import code
+    code.interact(banner="TurtleSC sketch mode started. Press Ctrl-D to exit sketch mode.", local=locals())
+
+
