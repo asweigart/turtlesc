@@ -615,6 +615,11 @@ def set_key(key, shortcuts):
     turtle.onkey(lambda: sc(shortcuts), key)
     turtle.listen()
 
+#def set_click(shortcuts):
+#    turtle.onclick(lambda x, y: sc())  # TODO
+
+# TODO - add jinja style templating with {{ }}
+
 def preset_cardinal(length=20):
     turtle.tracer(1, 0)
     set_key('w', 'n ' + str(length))
