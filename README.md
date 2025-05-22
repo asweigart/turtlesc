@@ -5,7 +5,7 @@ TurtleSC provides a mini-language of shortcut instructions to carry out turtle.p
 
 | Original Turtle Code | TurtleSC Code |
 | -------------------- | ------------- |
-| `from turtle import \*`<br>`from random import \*`<br><br>`colors = ['red', 'orange', 'yellow', 'blue', 'green', 'purple']`<br><br>`speed('fastest')`<br>`pensize(3)`<br>`bgcolor('black')`<br>`for i in range(300):`<br>&nbsp;&nbsp;&nbsp;&nbsp;`pencolor(choice(colors))`<br>&nbsp;&nbsp;&nbsp;&nbsp;`forward(i)`<br>&nbsp;&nbsp;&nbsp;&nbsp;`left(91)`<br>`hideturtle()`<br>`done()` | `from turtlesc import \*`<br>`from random import \*`<br><br>`colors = ['red', 'orange', 'yellow', 'blue', 'green', 'purple']`<br><br>`sc('spd fastest, ps 3, bc black')`<br>`for i in range(300):`<br>&nbsp;&nbsp;&nbsp;&nbsp;`sc(f'pc {choice(colors)}, f {i}, l 91')`<br>`sc('hide,done')` |
+| `from turtle import *`<br>`from random import *`<br><br>`colors = ['red', 'orange', 'yellow', 'blue', 'green', 'purple']`<br><br>`speed('fastest')`<br>`pensize(3)`<br>`bgcolor('black')`<br>`for i in range(300):`<br>&nbsp;&nbsp;&nbsp;&nbsp;`pencolor(choice(colors))`<br>&nbsp;&nbsp;&nbsp;&nbsp;`forward(i)`<br>&nbsp;&nbsp;&nbsp;&nbsp;`left(91)`<br>`hideturtle()`<br>`done()` | `from turtlesc import *`<br>`from random import *`<br><br>`colors = ['red', 'orange', 'yellow', 'blue', 'green', 'purple']`<br><br>`sc('spd fastest, ps 3, bc black')`<br>`for i in range(300):`<br>&nbsp;&nbsp;&nbsp;&nbsp;`sc(f'pc {choice(colors)}, f {i}, l 91')`<br>`sc('hide,done')` |
 
 
 
