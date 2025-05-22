@@ -9,7 +9,7 @@ TurtleSC provides a mini-language of shortcut instructions to carry out turtle.p
 
 
 
-These shortcuts are quicker to type, making them ideal for experimenting from the interactive shell. Turtlesc takes the idea of the existing `fd()` and `rt()` aliases for `forward()` and `right()` to the next level. All shortcuts are run from a string passed to the `turtlesc.sc()` function.
+These shortcuts are quicker to type, making them ideal for experimenting from the interactive shell. TurtleSC takes the idea of the existing `fd()` and `rt()` aliases for `forward()` and `right()` to the next level. All shortcuts are run from a string passed to the `turtlesc.sc()` function.
 
 TurtleSC was created by Al Sweigart, author of [Automate the Boring Stuff with Python](https://automatetheboringstuff.com/) and [other programming books](https://inventwithpython.com/). All of his books are available for free online under a [Creative Commons license](https://creativecommons.org/share-your-work/cclicenses/). If you'd like a tutorial specifically about Python's `turtle` module, check out [The Simple Turtle Tutorial](https://github.com/asweigart/simple-turtle-tutorial-for-python/blob/master/simple_turtle_tutorial.md).
 
