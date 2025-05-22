@@ -238,6 +238,41 @@ If you want to collect the turtle.py function calls for all your `sc()` calls, a
 ['f 100', ' r 90', ' f 100', ' r 90', 'f 100', ' r 90', ' f 100']
 ```
 
+## Interactive Drawing Mode
+
+You can draw with the turtle like an [etch a sketch](https://en.wikipedia.org/wiki/Etch_A_Sketch) by using TurtleSC's interactive mode. Make one of the following function calls:
+
+```python
+>>> from turtlesc import *
+>>> interactive()  # Use cardinal direction style (the default): WASD moves up/down, left/right
+>>> interactive('turn')  # WASD moves forward/backward, turn counterclockwise/clockwise
+>>> interactive('isometric')  # WASD moves up/down, and the AD, QE keys move along a 30 degree isometric plane
+```
+
+For all styles, the O and L key move the pen up and down, respectively. The H key moves the cursor home (to 0, 0) and clears the window. The U key is an undo. A mouse click moves the turtle with the pen up (and puts the pen back down if it had been down before.)
+
+Details of each movement style:
+
+* **'cardinal'** style has the WASD and arrow keys move up/down/left/right. The QE, ZC keys also move diagonally. Pass the `length` argument for how long each movement should be. Diagonal movements are shortened so that a diagonal up-right movement goes to the same position as an up movement and a right movement.
+
+* **'turn'** style has the WASD and arrow keys move forward/backward and *turn* left and right relative to its current heading. Each turn is 90 degrees. However, you can also add a number like **'turn45'** or **'turn30'** to have it turn by a different amount for each key press.
+
+* **'isometric'** style has the WA keys move up/down, but the QE, AD keys move [diagonally along an isometric plane](https://duckduckgo.com/?q=isometric+tile+game&t=ffab&iar=images).
+
+
+Cardinal:
+
+<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/master/style-cardinal.png" />
+
+Turn:
+
+<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/master/style-turn.png" />
+
+Isometric:
+
+<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/master/style-isometric.png" />
+
+
 ## Contribute
 
 If you'd like to contribute, send emails to [al@inventwithpython.com](mailto:al@inventwithpython.com)

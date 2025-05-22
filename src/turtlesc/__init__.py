@@ -3,8 +3,6 @@ import turtle, time, re
 # SC TODO - some kind of live replay sort of thing?
 # SC TODO - some kind of chart maker that records the screen after every movement?
 
-HALF_SQRT_THREE = 0.8660254037844386
-
 ALL_SHORTCUTS = '# f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
     'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
     'circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update' + \
@@ -565,7 +563,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
 
     # If begin_recording() has been called, log the shortcut.
     if _NOW_RECORDING and not dry_run:
-        RECORDED_SHORTCUTS.append(shortcut)
+        RECORDED_SHORTCUTS.append(shortcut.strip())
 
     return count_of_shortcuts_run
 
@@ -611,66 +609,96 @@ def end_recording():
     _NOW_RECORDING = False
     return RECORDED_SHORTCUTS
 
+
+def record(*messages, sep=' ', end='\n'):
+    global RECORDED_SHORTCUTS
+    RECORDED_SHORTCUTS.append(sep.join([str(m) for m in messages]) + end)
+
+
 def set_key(key, shortcuts):
     turtle.onkey(lambda: sc(shortcuts), key)
     turtle.listen()
 
-#def set_click(shortcuts):
-#    turtle.onclick(lambda x, y: sc())  # TODO
 
 # TODO - add jinja style templating with {{ }}
 
-def preset_cardinal(length=20):
-    turtle.tracer(1, 0)
-    set_key('w', 'n ' + str(length))
-    set_key('s', 's ' + str(length))
-    set_key('a', 'w ' + str(length))
-    set_key('d', 'e ' + str(length))
-    set_key('q', 'nw ' + str(length))
-    set_key('e', 'ne ' + str(length))
-    set_key('z', 'sw ' + str(length))
-    set_key('c', 'se ' + str(length))
+def _move_turtle(x, y):
+    pen_was_down = turtle.pen()['pendown']
+    turtle.penup()
+    turtle.goto(x, y)
+    if pen_was_down:
+        turtle.pendown()
 
-    set_key('o', 'pu')
-    set_key('l', 'pd')
 
-    set_key('u', 'undo')
-    set_key('h', 'home, clear')
+def interactive(style='cardinal', length=20, turn=90):
+    import re, math
 
-def preset_turn(length=20, turn=45):
-    turtle.tracer(1, 0)
-    set_key('w', 'f ' + str(length))
-    set_key('s', 'b ' + str(length))
-    set_key('a', 'l ' + str(turn))
-    set_key('d', 'r ' + str(turn))
+    if style != 'shell':
+        turtle.tracer(1, 0)
+        set_key('o', 'pu')
+        set_key('l', 'pd')
 
-    set_key('o', 'pu')
-    set_key('l', 'pd')
-
-    set_key('u', 'undo')
-    set_key('h', 'home, clear')
+        set_key('u', 'undo')
+        set_key('h', 'home, clear')
     
-def preset_isometric(length=20):
-    turtle.tracer(1, 0)
-    set_key('w', 'n ' + str(length * HALF_SQRT_THREE))
-    set_key('s', 's ' + str(length * HALF_SQRT_THREE))
-    #set_key('a', 'w ' + str(length * HALF_SQRT_THREE))
-    #set_key('d', 'e ' + str(length * HALF_SQRT_THREE))
-    set_key('q', 'sh 150, f ' + str(length))
-    set_key('e', 'sh 30, f ' + str(length))
-    set_key('a', 'sh 210, f ' + str(length))
-    set_key('d', 'sh 330, f ' + str(length))
-
-    set_key('o', 'pu')
-    set_key('l', 'pd')
-
-    set_key('u', 'undo')
-    set_key('h', 'home, clear')
+        turtle.getscreen().onclick(_move_turtle)
 
 
+    mo = re.match(r'turn([0-9]+)', style)
+    if mo is not None:
+        style = 'turn'
+        turn = int(mo.group(1))
 
-def sketch():
-    import code
-    code.interact(banner="TurtleSC sketch mode started. Press Ctrl-D to exit sketch mode.", local=locals())
 
+    if style.lower() == 'cardinal':    
+        turtle.resizemode('noresize')
+        turtle.shapesize(0.2, 0.2)
+        turtle.shape('circle')
+
+        set_key('w', 'n ' + str(length))
+        set_key('s', 's ' + str(length))
+        set_key('a', 'w ' + str(length))
+        set_key('d', 'e ' + str(length))
+        set_key('Up', 'n ' + str(length))
+        set_key('Down', 's ' + str(length))
+        set_key('Left', 'w ' + str(length))
+        set_key('Right', 'e ' + str(length))
+        set_key('q', 'nw ' + str(math.sqrt(2 * length**2)))
+        set_key('e', 'ne ' + str(math.sqrt(2 * length**2)))
+        set_key('z', 'sw ' + str(math.sqrt(2 * length**2)))
+        set_key('c', 'se ' + str(math.sqrt(2 * length**2)))
+    elif style.lower().startswith('turn'):
+        turtle.resizemode('noresize')
+        turtle.shapesize(0.2, 0.2)
+        turtle.shape('square')
+
+        set_key('w', 'f ' + str(length))
+        set_key('s', 'b ' + str(length))
+        set_key('a', 'l ' + str(turn))
+        set_key('d', 'r ' + str(turn))
+        set_key('Up', 'f ' + str(length))
+        set_key('Down', 'b ' + str(length))
+        set_key('Left', 'l ' + str(turn))
+        set_key('Right', 'r ' + str(turn))
+    elif style.lower() == 'isometric':
+        turtle.resizemode('noresize')
+        turtle.shapesize(0.2, 0.2)
+        turtle.shape('circle')
+
+        set_key('w', 'n ' + str(length))
+        set_key('s', 's ' + str(length))
+        set_key('q', 'sh 150, f ' + str(length))
+        set_key('e', 'sh 30, f ' + str(length))
+        set_key('a', 'sh 210, f ' + str(length))
+        set_key('d', 'sh 330, f ' + str(length))
+
+        set_key('Up', 'n ' + str(length))
+        set_key('Down', 's ' + str(length))
+        set_key('Left', 'w ' + str(math.cos(30 * (math.pi / 180)) * length))
+        set_key('Right', 'e ' + str(math.cos(30 * (math.pi / 180)) * length))
+    elif style.lower() == 'shell':
+        # TODO - figure out a way to run turtlesc strings from this interactive shell without
+        # making the user type `from turtlesc import *` first, or even directly entering the shortcuts.
+        import code
+        code.interact(banner="TurtleSC interactive mode started. Press Ctrl-D to exit sketch mode.", local=locals())
 
