@@ -262,15 +262,15 @@ Details of each movement style:
 
 Cardinal:
 
-<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/master/style-cardinal.png" />
+<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/main/style-cardinal.png" />
 
 Turn:
 
-<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/master/style-turn.png" />
+<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/main/style-turn.png" />
 
 Isometric:
 
-<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/master/style-isometric.png" />
+<img src="https://raw.githubusercontent.com/asweigart/turtlesc/refs/heads/main/style-isometric.png" />
 
 
 ## Contribute
