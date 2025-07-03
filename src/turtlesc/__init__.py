@@ -604,12 +604,16 @@ def begin_recording(shortcut_list=None):
 
     _NOW_RECORDING = True
 
-def end_recording():
+
+def end_recording(merge=True):
     """Stop recording turtlesc function calls and return the list of recorded function calls."""
     global RECORDED_SHORTCUTS, _NOW_RECORDING
 
     _NOW_RECORDING = False
-    return RECORDED_SHORTCUTS
+    if merge:
+        return merge_shortcuts(RECORDED_SHORTCUTS)
+    else:
+        return RECORDED_SHORTCUTS
 
 
 def merge_shortcuts(shortcuts):
@@ -796,6 +800,8 @@ def merge_shortcuts(shortcuts):
             if prev_sc_parts[0] == 'spd':
                 merged_shortcuts.pop()
         elif sc_parts[0] == 'eoc':
+            pass
+        elif sc_parts[0].startswith('#'):
             pass
         else:
             assert False, 'Unknown shortcut: ' + str(sc)
