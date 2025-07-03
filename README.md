@@ -61,7 +61,7 @@ Shortcuts in the `sc()` string argument are separated by a comma, with any short
 
 Some less-common shortcuts (such as `'done'`) only have their full function name. All shortcuts have their full function name as a shortcut name: you can use either `'f'` or `'forward'`.
 
-TurtleSC also adds cardinal movement shortcuts that move the turtle independent of it's current heading (and does not change the heading): `'n 100'`, `'s 100'`, `'e 100'`, `'w 100'` will move the turtle up, down, right, and left 100 steps, respectively. There are also full name shortcuts (`'north'`, `'south'`, `'east'`, `'west'`) and diagnoal shortcuts (`'nw'`, `'ne'`, `'sw'`, `'se'`, `'northwest'`, `'northeast'`, `'southwest'`, `'southeast'`).
+TurtleSC also adds cardinal movement shortcuts that move the turtle independent of it's current heading (and does not change the heading): `'n 100'`, `'s 100'`, `'e 100'`, `'w 100'` will move the turtle up, down, right, and left 100 steps, respectively. There are also full name shortcuts (`'north'`, `'south'`, `'east'`, `'west'`) and diagonal shortcuts (`'nw'`, `'ne'`, `'sw'`, `'se'`, `'northwest'`, `'northeast'`, `'southwest'`, `'southeast'`).
 
 By default, the `sc()` function operates on the single, global turtle. You can also pass the `turtle_obj` keyword argument to operate on different `Turtle` objects:
 

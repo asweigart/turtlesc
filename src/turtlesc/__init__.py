@@ -3,16 +3,16 @@ import turtle, time, re
 # SC TODO - some kind of live replay sort of thing?
 # SC TODO - some kind of chart maker that records the screen after every movement?
 
-ALL_SHORTCUTS = '# f b l r h c g tele x y st u pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
+ALL_SHORTCUTS = '# f b l r h c g tele x y st pd pu ps pc fc bc sh cir undo bf ef sleep n s e w nw ne sw se u t cs css spd eoc' + \
     'forward backward left right home clear goto setx sety stamp update pendown penup pensize pencolor fillcolor bgcolor setheading' + \
     'circle undo begin_fill end_fill north south east west northwest northeast southwest southeast reset bye done exitonclick update' + \
     'tracer hide show dot clearstamp clearstamps degrees radians speed'
 
 CARDINAL_TO_DEGREES = {'n': '90', 's': '270', 'e': '0', 'w': '180', 'nw': '135', 'ne': '45', 'sw': '225', 'se': '315'}
 
-_MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left': 'l', 'home': 'h', 'clear': 'c', 
-        'goto': 'g', 'teleport': 'tele', 'setx': 'x', 'sety': 'y', 'stamp': 'st', 'update': 'u', 'pendown': 'pd', 'penup': 'pu', 
-        'pensize': 'ps', 'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir', 
+_MAP_FULL_TO_SHORT_NAMES = {'forward': 'f', 'backward': 'b', 'right': 'r', 'left': 'l', 'home': 'h', 'clear': 'c',
+        'goto': 'g', 'teleport': 'tele', 'setx': 'x', 'sety': 'y', 'stamp': 'st', 'pendown': 'pd', 'penup': 'pu',
+        'pensize': 'ps', 'pencolor': 'pc', 'fillcolor': 'fc', 'bgcolor': 'bc', 'setheading': 'sh', 'circle': 'cir',
         'begin_fill': 'bf', 'end_fill': 'ef', 'north': 'n', 'south': 's', 'east': 'e', 'west': 'w',
         'northwest': 'nw', 'northeast': 'ne', 'southwest': 'sw', 'southeast': 'se', 'update': 'u', 'tracer': 't',
         'clearstamp': 'cs', 'clearstamps': 'css', 'speed': 'spd', 'exitonclick': 'eoc'}
@@ -90,7 +90,7 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False, skip=False): # type: (
     css N - clearstamps(N)
     degrees - degrees()
     radians - radians()
-    
+
     spd N - speed(N) but N can also be 'fastest', 'fast', 'normal', 'slow', 'slowest'
     !!shape N - shape(N) where N can be “arrow”, “turtle”, “circle”, “square”, “triangle”, “classic”
     !!resizemode N - resizemode(N) where N can be “auto”, “user”, or "noresize"
@@ -100,11 +100,11 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False, skip=False): # type: (
     !!settiltangle N - settiltangle(N)
     !!tilt N - tilt(N)
     !!tiltangle N - tiltangle(N)
-    
 
 
 
-    Note: 
+
+    Note:
 
 
     Furthermore, you can also use the full names: forward N translates to forward(N).
@@ -129,7 +129,7 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False, skip=False): # type: (
 
     if shortcuts == '' or len(shortcuts.split(',')) == 0:
         return 0
-    
+
     count_of_shortcuts_run = 0
 
     # Go through and check that all shortcuts are syntactically correct:
@@ -144,7 +144,7 @@ def sc(*args, turtle_obj=None, _return_turtle_code=False, skip=False): # type: (
             turtle_code += _run_shortcut(shortcut, turtle_obj=turtle_obj, _return_turtle_code=True)
         else:
             count_of_shortcuts_run += _run_shortcut(shortcut, turtle_obj=turtle_obj)
-    
+
     if _return_turtle_code:
         # Return a multi-line string of Python code calling turtle functions:
         return '\n'.join(turtle_code) + '\n'
@@ -175,7 +175,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
 
     raise_exception = False
     count_of_shortcuts_run = 0
-    
+
 
     # SHORTCUTS THAT TAKE A VARIABLE NUMBER OF ARGUMENTS:
     if _sc in ('#',):
@@ -197,7 +197,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
         # Convert the string arguments for the `speed` shortcut to their numeric equivalents.
         if _sc == 'spd':
             shortcut_parts[1] = {'fastest': 0, 'fast': 10, 'normal': 6, 'slow': 3, 'slowest': 1}.get(shortcut_parts[1].lower(), shortcut_parts[1].lower())
-        
+
         try:
             float(shortcut_parts[1])
         except ValueError:
@@ -218,27 +218,27 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             elif _sc == 'b':
                 if _return_turtle_code:
                     return ('backward(' + shortcut_parts[1] + ')',)
-                turtle_obj.backward(float(shortcut_parts[1]))    
+                turtle_obj.backward(float(shortcut_parts[1]))
             elif _sc == 'r':
                 if _return_turtle_code:
                     return ('right(' + shortcut_parts[1] + ')',)
-                turtle_obj.right(float(shortcut_parts[1]))    
+                turtle_obj.right(float(shortcut_parts[1]))
             elif _sc == 'l':
                 if _return_turtle_code:
                     return ('left(' + shortcut_parts[1] + ')',)
-                turtle_obj.left(float(shortcut_parts[1]))    
+                turtle_obj.left(float(shortcut_parts[1]))
             elif _sc == 'x':
                 if _return_turtle_code:
                     return ('setx(' + shortcut_parts[1] + ')',)
-                turtle_obj.setx(float(shortcut_parts[1]))    
+                turtle_obj.setx(float(shortcut_parts[1]))
             elif _sc == 'y':
                 if _return_turtle_code:
                     return ('sety(' + shortcut_parts[1] + ')',)
-                turtle_obj.sety(float(shortcut_parts[1]))    
+                turtle_obj.sety(float(shortcut_parts[1]))
             elif _sc == 'ps':
                 if _return_turtle_code:
                     return ('pensize(' + shortcut_parts[1] + ')',)
-                turtle_obj.pensize(float(shortcut_parts[1]))    
+                turtle_obj.pensize(float(shortcut_parts[1]))
             elif _sc == 'sh':
                 if _return_turtle_code:
                     return ('setheading(' + shortcut_parts[1] + ')',)
@@ -246,7 +246,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             elif _sc == 'cir':
                 if _return_turtle_code:
                     return ('circle(' + shortcut_parts[1] + ')',)
-                turtle_obj.circle(float(shortcut_parts[1]))    
+                turtle_obj.circle(float(shortcut_parts[1]))
             elif _sc == 'sleep':
                 if _return_turtle_code:
                     return ('sleep(' + shortcut_parts[1] + ')', )
@@ -258,7 +258,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                     if originally_in_radians_mode:
                         return ('degrees()', 'setheading(' + CARDINAL_TO_DEGREES[_sc] + ')', 'forward(' + shortcut_parts[1] + ')', 'radians()')
                     else:
-                        return ('setheading(' + CARDINAL_TO_DEGREES[_sc] + ')', 'forward(' + shortcut_parts[1] + ')')                
+                        return ('setheading(' + CARDINAL_TO_DEGREES[_sc] + ')', 'forward(' + shortcut_parts[1] + ')')
                 turtle.degrees()
                 if _sc == 'n':
                     turtle.setheading(90)
@@ -305,7 +305,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
     elif _sc in ('css',):
         if len(shortcut_parts) > 2:
             raise TurtleShortcutException('Syntax error in `' + shortcut + '`: Too many arguments.')
-        
+
         # Technically, the css shortcut can take a float argument, but it gets passed to int() silently. Not ideal, but not a big deal either.
 
         if len(shortcut_parts) == 2:
@@ -377,7 +377,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                     return ('teleport(' + shortcut_parts[1] + ', ' + shortcut_parts[2] + ')',)
                 turtle_obj.teleport(x, y)
             else:  # pragma: no cover
-                assert False, 'Unhandled shortcut: ' + _sc 
+                assert False, 'Unhandled shortcut: ' + _sc
             count_of_shortcuts_run += 1
 
 
@@ -400,7 +400,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                     return ('clear()',)
                 turtle_obj.clear()
             elif _sc == 'st':
-                if _return_turtle_code: 
+                if _return_turtle_code:
                     return ('stamp()',)
                 turtle_obj.stamp()
             elif _sc == 'pd':
@@ -501,7 +501,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
 
             if turtle_obj.colormode() == 1.0 and (color_arg[0] > 1.0 or color_arg[1] > 1.0 or color_arg[2] > 1.0):
                 raise TurtleShortcutException(shortcut + ' is invalid because colormode is 1.0 and one or more RGB color values are greater than 1.0.')
-            
+
         elif len(shortcut_parts) == 2:
             # We expect the color arg to be a string like 'blue' or '#FF0000':
             raise_exception = False
@@ -525,7 +525,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                     raise TurtleShortcutException('Syntax error in `' + shortcut + "`: '" + shortcut_parts[1] + "' is not a valid color. Did you mean '# " + shortcut_parts[1] + "'?")
                 else:
                     raise TurtleShortcutException('Syntax error in `' + shortcut + "`: '" + shortcut_parts[1] + "' is not a valid color.")
-            
+
             # NOTE: This code here is to handle an unfixed bug in turtle.py. If the color mode is 1.0 and you set
             # the color to (1.0, 0.0, 0.0) and then change the color mode to 255, the color will be (255.0, 0.0, 0.0)
             # but these float values are not a valid setting for a color while in mode 255. So we have to convert them
@@ -549,7 +549,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
                     return (func_name_prefix + "color('" + str(color_arg) + "')",)
                 else:
                     return (func_name_prefix + 'color(' + str(color_arg) + ')',)
-            
+
             # Run the shortcut that has an RGB color argument:
             if _sc == 'pc':
                 turtle_obj.pencolor(color_arg)
@@ -558,7 +558,7 @@ def _run_shortcut(shortcut, turtle_obj=None, dry_run=False, _return_turtle_code=
             elif _sc == 'bc':
                 turtle_obj.bgcolor(color_arg)
             else:  # pragma: no cover
-                assert False, 'Unhandled shortcut: ' + _sc  
+                assert False, 'Unhandled shortcut: ' + _sc
             count_of_shortcuts_run += 1
 
     # If begin_recording() has been called, log the shortcut.
@@ -598,16 +598,213 @@ def psc(*args):
 
 
 def begin_recording(shortcut_list=None):
+    """Start recording turtlesc function calls."""
     global RECORDED_SHORTCUTS, _NOW_RECORDING
     RECORDED_SHORTCUTS = []
 
     _NOW_RECORDING = True
-    
+
 def end_recording():
+    """Stop recording turtlesc function calls and return the list of recorded function calls."""
     global RECORDED_SHORTCUTS, _NOW_RECORDING
 
     _NOW_RECORDING = False
     return RECORDED_SHORTCUTS
+
+
+def merge_shortcuts(shortcuts):
+    """Return the shortcuts with redundant function calls merged, i.e. ['f 100', ' f 50', ' r 90', ' l 30'] returns ['f 150', r 60']"""
+    if len(shortcuts) in (0, 1): return shortcuts
+
+    def get_num_str(n):
+        if float(n) % 1 == 0.0:
+            n = int(n)
+        return str(n)
+
+    prev_sc = _MAP_FULL_TO_SHORT_NAMES.get(shortcuts[0], shortcuts[0])
+    pen_is_up = shortcuts[0] == 'pu'  # If it's unknown that the pen is down, set this to True anyway.
+    merged_shortcuts = [shortcuts[0]]
+
+    for i, sc in enumerate(shortcuts):
+        if i == 0: continue  # skip first one.
+
+        sc_parts = sc.lower().split(' ')
+        prev_sc_parts = merged_shortcuts[-1].split(' ')
+
+        if sc_parts[0] == 'f':
+            if prev_sc_parts[0] == 'f':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'b' and pen_is_up:
+                sc_parts[0] = 'b'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'b':
+            if prev_sc_parts[0] == 'b':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'f' and pen_is_up:
+                sc_parts[0] = 'f'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'l':
+            if prev_sc_parts[0] == 'l':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'r':
+                sc_parts[0] = 'r'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'r':
+            if prev_sc_parts[0] == 'r':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'l':
+                sc_parts[0] = 'l'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'h':
+            if prev_sc_parts[0] == 'h':
+                merged_shortcuts.pop()
+            elif pen_is_up and prev_sc_parts[0] in ('f', 'b', 'l', 'r', 'sh', 'g', 'n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se'):
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'c':
+            if prev_sc_parts[0] == 'c':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'g':
+            if pen_is_up and prev_sc_parts[0] in ('f', 'b', 'g'):
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'tele':
+            if prev_sc_parts[0] == 'tele':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'x':
+            if pen_is_up and prev_sc_parts[0] == 'x':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'y':
+            if pen_is_up and prev_sc_parts[0] == 'y':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'st':
+            pass
+        elif sc_parts[0] == 'pd':
+            if prev_sc_parts[0] == 'pd':
+                merged_shortcuts.pop()
+            pen_is_up = False
+        elif sc_parts[0] == 'pu':
+            if prev_sc_parts[0] == 'pu':
+                merged_shortcuts.pop()
+            pen_is_up = True
+        elif sc_parts[0] == 'ps':
+            if prev_sc_parts[0] == 'ps':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'pc':
+            if prev_sc_parts[0] == 'pc':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'fc':
+            if prev_sc_parts[0] == 'fc':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'bc':
+            if prev_sc_parts[0] == 'bc':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'sh':
+            if prev_sc_parts[0] in ('sh', 'l', 'r'):
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'cir':
+            pass
+        elif sc_parts[0] == 'undo':
+            pass
+        elif sc_parts[0] == 'bf':
+            pass
+        elif sc_parts[0] == 'ef':
+            pass
+        elif sc_parts[0] == 'sleep':
+            if prev_sc_parts[0] == 'sleep':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'n':
+            if prev_sc_parts[0] == 'n':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 's' and pen_is_up:
+                sc_parts[0] = 's'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()                
+        elif sc_parts[0] == 's':
+            if prev_sc_parts[0] == 's':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'n' and pen_is_up:
+                sc_parts[0] = 'n'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'e':
+            if prev_sc_parts[0] == 'e':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'w' and pen_is_up:
+                sc_parts[0] = 'w'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'w':
+            if prev_sc_parts[0] == 'w':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'e' and pen_is_up:
+                sc_parts[0] = 'e'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'nw':
+            if prev_sc_parts[0] == 'nw':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'se' and pen_is_up:
+                sc_parts[0] = 'se'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'ne':
+            if prev_sc_parts[0] == 'ne':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'sw' and pen_is_up:
+                sc_parts[0] = 'sw'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'sw':
+            if prev_sc_parts[0] == 'sw':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'ne' and pen_is_up:
+                sc_parts[0] = 'ne'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'se':
+            if prev_sc_parts[0] == 'se':
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) + float(sc_parts[1]))
+                merged_shortcuts.pop()
+            elif prev_sc_parts[0] == 'nw' and pen_is_up:
+                sc_parts[0] = 'nw'
+                sc_parts[1] = get_num_str(float(prev_sc_parts[1]) - float(sc_parts[1]))
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'u':
+            pass
+        elif sc_parts[0] == 't':
+            pass
+        elif sc_parts[0] == 'cs':
+            pass
+        elif sc_parts[0] == 'css':
+            pass
+        elif sc_parts[0] == 'spd':
+            if prev_sc_parts[0] == 'spd':
+                merged_shortcuts.pop()
+        elif sc_parts[0] == 'eoc':
+            pass
+        else:
+            assert False, 'Unknown shortcut: ' + str(sc)
+
+        merged_shortcuts.append(' '.join(sc_parts))
+
+    return merged_shortcuts
+
+
 
 
 def record(*messages, sep=' ', end='\n'):
@@ -640,7 +837,7 @@ def interactive(style='cardinal', length=20, turn=90):
 
         set_key('u', 'undo')
         set_key('h', 'home, clear')
-    
+
         turtle.getscreen().onclick(_move_turtle)
 
 
@@ -650,7 +847,7 @@ def interactive(style='cardinal', length=20, turn=90):
         turn = int(mo.group(1))
 
 
-    if style.lower() == 'cardinal':    
+    if style.lower() == 'cardinal':
         turtle.resizemode('noresize')
         turtle.shapesize(0.2, 0.2)
         turtle.shape('circle')

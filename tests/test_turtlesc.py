@@ -1110,7 +1110,7 @@ def test_recording():
     begin_recording()
     assert RECORDED_SHORTCUTS == []
     assert sc('f 100, l 90, f 100, l 90, # foobar, f 100') == 5
-    assert end_recording() == ['f 100', ' l 90', ' f 100', ' l 90', ' # foobar', ' f 100']
+    assert end_recording() == ['f 100', 'l 90', 'f 100', 'l 90', '# foobar', 'f 100']
     begin_recording()
     assert RECORDED_SHORTCUTS == []
     
@@ -1166,5 +1166,103 @@ def test_curve_path_filled():
     sc('u,reset')
 
 
+def test_merge_shortcuts():
+    assert merge_shortcuts([]) == []
+
+    assert merge_shortcuts(['f 100']) == ['f 100']
+    assert merge_shortcuts(['f 100', 'f 100']) == ['f 200']
+    assert merge_shortcuts(['f 100', 'f 100', 'f 100']) == ['f 300']
+    assert merge_shortcuts(['f 100', 'b 25']) == ['f 100', 'b 25']
+    assert merge_shortcuts(['pu', 'f 100', 'b 25']) == ['pu', 'f 75']
+    assert merge_shortcuts(['pd', 'f 100', 'b 25']) == ['pd', 'f 100', 'b 25']
+
+    assert merge_shortcuts(['b 100']) == ['b 100']
+    assert merge_shortcuts(['b 100', 'b 100']) == ['b 200']
+    assert merge_shortcuts(['b 100', 'b 100', 'b 100']) == ['b 300']
+    assert merge_shortcuts(['b 100', 'f 25']) == ['b 100', 'f 25']
+    assert merge_shortcuts(['pu', 'b 100', 'f 25']) == ['pu', 'b 75']
+    assert merge_shortcuts(['pd', 'b 100', 'f 25']) == ['pd', 'b 100', 'f 25']
+    
+    assert merge_shortcuts(['l 100']) == ['l 100']
+    assert merge_shortcuts(['l 100', 'l 100']) == ['l 200']
+    assert merge_shortcuts(['l 100', 'l 100', 'l 100']) == ['l 300']
+    assert merge_shortcuts(['l 100', 'r 25']) == ['l 75']
+    assert merge_shortcuts(['pu', 'l 100', 'r 25']) == ['pu', 'l 75']
+    assert merge_shortcuts(['pd', 'l 100', 'r 25']) == ['pd', 'l 75']
+    
+    assert merge_shortcuts(['r 100']) == ['r 100']
+    assert merge_shortcuts(['r 100', 'r 100']) == ['r 200']
+    assert merge_shortcuts(['r 100', 'r 100', 'r 100']) == ['r 300']
+    assert merge_shortcuts(['r 100', 'l 25']) == ['r 75']
+    assert merge_shortcuts(['pu', 'r 100', 'l 25']) == ['pu', 'r 75']
+    assert merge_shortcuts(['pd', 'r 100', 'l 25']) == ['pd', 'r 75']
+
+    
+
+    assert merge_shortcuts(['f 1.5']) == ['f 1.5']
+    assert merge_shortcuts(['f 1.5', 'f 1.5']) == ['f 3']
+    assert merge_shortcuts(['f 1.5', 'f 1.5', 'f 1.5']) == ['f 4.5']
+
+    assert merge_shortcuts(['b 1.5']) == ['b 1.5']
+    assert merge_shortcuts(['b 1.5', 'b 1.5']) == ['b 3']
+    assert merge_shortcuts(['b 1.5', 'b 1.5', 'b 1.5']) == ['b 4.5']
+
+    assert merge_shortcuts(['l 1.5']) == ['l 1.5']
+    assert merge_shortcuts(['l 1.5', 'l 1.5']) == ['l 3']
+    assert merge_shortcuts(['l 1.5', 'l 1.5', 'l 1.5']) == ['l 4.5']
+
+    assert merge_shortcuts(['r 1.5']) == ['r 1.5']
+    assert merge_shortcuts(['r 1.5', 'r 1.5']) == ['r 3']
+    assert merge_shortcuts(['r 1.5', 'r 1.5', 'r 1.5']) == ['r 4.5']
+
+    assert merge_shortcuts(['n 1.5']) == ['n 1.5']
+    assert merge_shortcuts(['n 1.5', 'n 1.5']) == ['n 3']
+    assert merge_shortcuts(['n 1.5', 'n 1.5', 'n 1.5']) == ['n 4.5']
+
+    assert merge_shortcuts(['s 1.5']) == ['s 1.5']
+    assert merge_shortcuts(['s 1.5', 's 1.5']) == ['s 3']
+    assert merge_shortcuts(['s 1.5', 's 1.5', 's 1.5']) == ['s 4.5']
+
+    assert merge_shortcuts(['w 1.5']) == ['w 1.5']
+    assert merge_shortcuts(['w 1.5', 'w 1.5']) == ['w 3']
+    assert merge_shortcuts(['w 1.5', 'w 1.5', 'w 1.5']) == ['w 4.5']
+
+    assert merge_shortcuts(['e 1.5']) == ['e 1.5']
+    assert merge_shortcuts(['e 1.5', 'e 1.5']) == ['e 3']
+    assert merge_shortcuts(['e 1.5', 'e 1.5', 'e 1.5']) == ['e 4.5']
+
+    assert merge_shortcuts(['nw 1.5']) == ['nw 1.5']
+    assert merge_shortcuts(['nw 1.5', 'nw 1.5']) == ['nw 3']
+    assert merge_shortcuts(['nw 1.5', 'nw 1.5', 'nw 1.5']) == ['nw 4.5']
+
+    assert merge_shortcuts(['ne 1.5']) == ['ne 1.5']
+    assert merge_shortcuts(['ne 1.5', 'ne 1.5']) == ['ne 3']
+    assert merge_shortcuts(['ne 1.5', 'ne 1.5', 'ne 1.5']) == ['ne 4.5']
+
+    assert merge_shortcuts(['sw 1.5']) == ['sw 1.5']
+    assert merge_shortcuts(['sw 1.5', 'sw 1.5']) == ['sw 3']
+    assert merge_shortcuts(['sw 1.5', 'sw 1.5', 'sw 1.5']) == ['sw 4.5']
+
+    assert merge_shortcuts(['se 1.5']) == ['se 1.5']
+    assert merge_shortcuts(['se 1.5', 'se 1.5']) == ['se 3']
+    assert merge_shortcuts(['se 1.5', 'se 1.5', 'se 1.5']) == ['se 4.5']
+
+    assert merge_shortcuts(['h', 'h', 'h']) == ['h']
+    assert merge_shortcuts(['pd', 'pd', 'pd']) == ['pd']
+    assert merge_shortcuts(['pu', 'pu', 'pu']) == ['pu']
+    
+
+
 if __name__ == '__main__':
     pytest.main()
+
+
+
+
+
+
+
+
+
+
+
