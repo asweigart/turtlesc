@@ -1,6 +1,6 @@
 [project]
 name = "TurtleSC"
-version = "0.0.7"
+version = "0.1.0"
 authors = [
     {name="Al Sweigart", email="al@inventwithpython.com"},
 ]
